@@ -1,9 +1,12 @@
 import argparse
+import statistics
 import csv
 import math
 from pathlib import Path
 
 DATA_FOLDER = Path(__file__).parent / "data"
+TRADING_DAYS = 252
+RISK_FREE_RATE = 0.0
 
 def load_data(file_path):
     with file_path.open("r", encoding="utf-8") as file:
@@ -56,6 +59,50 @@ def calculate(rows):
         previous_price = price
     return results
 
+def summarize(results):
+    daily_returns = [
+        row["simpleReturn"]
+        for row in results
+        if row["simpleReturn"] is not None
+    ]
+
+    if len(daily_returns) < 2:
+        raise ValueError("Not enough data to calculate annual metrics.")
+
+    total_return = results[-1]["wealthIndex"] - 1
+
+    annual_return = (
+        (1 + total_return)
+        ** (TRADING_DAYS / len(daily_returns))
+        - 1
+    )
+
+    daily_volatility = statistics.stdev(daily_returns)
+    annual_volatility = daily_volatility * math.sqrt(TRADING_DAYS)
+
+    if daily_volatility == 0:
+        raise ValueError("Cannot calculate Sharpe ratio with zero volatility.")
+
+    daily_risk_free_rate = (
+        (1 + RISK_FREE_RATE) ** (1 / TRADING_DAYS) - 1
+    )
+
+    sharpe_ratio = (
+        statistics.mean(daily_returns) - daily_risk_free_rate
+    ) / daily_volatility * math.sqrt(TRADING_DAYS)
+
+    max_drawdown = min(
+        row["drawdown"] for row in results
+    )
+
+    return {
+        "totalReturn": total_return,
+        "annualReturn": annual_return,
+        "annualVolatility": annual_volatility,
+        "sharpeRatio": sharpe_ratio,
+        "maximumDrawdown": max_drawdown,
+    }
+
 def save_data(input_file, results):
     output_file = input_file.with_name(
         input_file.stem + "_metrics.csv"
@@ -89,13 +136,15 @@ def main():
     rows = load_data(input_file)
     results = calculate(rows)
     output_file = save_data(input_file, results)
-    total_return = results[-1]["wealthIndex"] - 1
-    max_drawdown = min(row["drawdown"] for row in results)
+    summary = summarize(results)
 
     print("Calculation successful.")
     print(f"Observations: {len(results)}")
-    print(f"Total return: {total_return:.4%}")
-    print(f"Maximum drawdown: {max_drawdown:.4%}")
+    print(f"Total return: {summary['totalReturn']:.4%}")
+    print(f"Annualized return: {summary['annualReturn']:.4%}")
+    print(f"Annualized volatility: {summary['annualVolatility']:.4%}")
+    print(f"Sharpe ratio: {summary['sharpeRatio']:.4f}")
+    print(f"Maximum drawdown: {summary['maximumDrawdown']:.4%}")
     print(f"Saved to: {output_file}")
 
 if __name__ == "__main__":
