@@ -1,4 +1,5 @@
 import argparse
+import statistics
 from pathlib import Path
 
 from calculate_metrics import (
@@ -7,7 +8,6 @@ from calculate_metrics import (
     load_data,
     summarize,
 )
-
 
 def find_file(file_name):
     file_path = Path(file_name)
@@ -20,18 +20,16 @@ def find_file(file_name):
 
     return file_path
 
-
 def analyze(file_path):
     rows = load_data(file_path)
     results = calculate(rows)
     summary = summarize(results)
 
-    return rows, summary
-
+    return rows, results, summary
 
 def show_comparison(asset_file, benchmark_file):
-    asset_rows, asset = analyze(asset_file)
-    benchmark_rows, benchmark = analyze(benchmark_file)
+    asset_rows, asset_results, asset = analyze(asset_file)
+    benchmark_rows, benchmark_results, benchmark = analyze(benchmark_file)
 
     asset_dates = [row["date"] for row in asset_rows]
     benchmark_dates = [row["date"] for row in benchmark_rows]
@@ -41,6 +39,39 @@ def show_comparison(asset_file, benchmark_file):
             "Asset and benchmark must contain the same dates."
         )
 
+    asset_returns = [
+        row["simpleReturn"]
+        for row in asset_results
+        if row["simpleReturn"] is not None
+    ]
+
+    benchmark_returns = [
+        row["simpleReturn"]
+        for row in benchmark_results
+        if row["simpleReturn"] is not None
+    ]
+
+    correlation = statistics.correlation(
+        asset_returns,
+        benchmark_returns,
+    )
+
+    benchmark_variance = statistics.variance(
+        benchmark_returns
+    )
+
+    if benchmark_variance == 0:
+        raise ValueError(
+            "Cannot calculate beta because benchmark variance is zero."
+        )
+
+    beta = (
+        statistics.covariance(
+            asset_returns,
+            benchmark_returns,
+        )
+        / benchmark_variance
+    )
     asset_name = asset_file.stem.split("_")[0]
     benchmark_name = benchmark_file.stem.split("_")[0]
 
@@ -88,6 +119,8 @@ def show_comparison(asset_file, benchmark_file):
         f"{return_difference:.4%}"
     )
 
+    print(f"Return correlation: {correlation:.4f}")
+    print(f"Beta: {beta:.4f}")
 
 def main():
     parser = argparse.ArgumentParser()
@@ -99,7 +132,6 @@ def main():
     benchmark_file = find_file(args.benchmark_file)
 
     show_comparison(asset_file, benchmark_file)
-
 
 if __name__ == "__main__":
     try:
