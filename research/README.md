@@ -15,6 +15,7 @@ Tiingo API
 - `compare_assets.py`: compares an asset with a market benchmark.
 - `calculate_portfolio.py`: calculates the return and risk metrics of a multi-asset portfolio.
 - `compare_portfolios.py`: compares different weight combinations for two assets.
+- `plot_portfolios.py`: creates a risk-return chart from portfolio comparison results.
 - `requirements.txt`: lists the Python package required by the research scripts.
 
 Downloaded CSV files are stored in `research/data/`. This folder is included in .gitignore.
@@ -195,4 +196,12 @@ Compare portfolio weights for AAPL and MSFT:
 python3 research/compare_portfolios.py \
   --files AAPL_2021-01-01_2025-12-31.csv MSFT_2021-01-01_2025-12-31.csv \
   --step 5
+```
+
+Create a portfolio risk-return chart:
+
+```bash
+python3 research/plot_portfolios.py \
+  portfolio_comparison_AAPL_2021-01-01_2025-12-31_MSFT_2021-01-01_2025-12-31_step_5.csv \
+  --labels AAPL MSFT
 ```
