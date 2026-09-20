@@ -17,6 +17,8 @@ Tiingo API
 - `compare_portfolios.py`: compares different weight combinations for two assets.
 - `plot_portfolios.py`: creates a risk-return chart from portfolio comparison results.
 - `requirements.txt`: lists the Python package required by the research scripts.
+- `backtest_moving_average.py`: backtests a moving-average strategy against buy-and-hold.
+- `test_backtest_moving_average.py`: tests execution timing, costs, and CSV export.
 
 Downloaded CSV files are stored in `research/data/`. This folder is included in .gitignore.
 
@@ -205,3 +207,13 @@ python3 research/plot_portfolios.py \
   portfolio_comparison_AAPL_2021-01-01_2025-12-31_MSFT_2021-01-01_2025-12-31_step_5.csv \
   --labels AAPL MSFT
 ```
+
+## 9. Moving-average backtest
+
+This script compares a moving-average strategy with buy-and-hold over the same period. 
+Signals use adjusted closing prices; trades execute at the next opening price.
+
+```bash
+python3 research/backtest_moving_average.py \
+  AAPL_2021-01-01_2025-12-31.csv \
+  --short 20 --long 50 --cost-bps 10
