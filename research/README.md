@@ -19,6 +19,8 @@ Tiingo API
 - `requirements.txt`: lists the Python package required by the research scripts.
 - `backtest_moving_average.py`: backtests a moving-average strategy against buy-and-hold.
 - `test_backtest_moving_average.py`: tests execution timing, costs, and CSV export.
+- `compare_moving_averages.py`: compares multiple moving-average parameter combinations.
+- `test_compare_moving_averages.py`: tests parameter generation, shared comparison periods, and CSV export.
 
 Downloaded CSV files are stored in `research/data/`. This folder is included in .gitignore.
 
@@ -217,3 +219,20 @@ Signals use adjusted closing prices; trades execute at the next opening price.
 python3 research/backtest_moving_average.py \
   AAPL_2021-01-01_2025-12-31.csv \
   --short 20 --long 50 --cost-bps 10
+  ```
+
+`--cost-bps 10` means a 0.1% transaction cost whenever the position changes. Daily results are saved in `research/data/`.
+
+## 10. Moving-average parameter comparison
+
+This script compares multiple short- and long-window combinations over the same period. Results are sample-specific and do not guarantee future performance.
+
+```bash
+python3 research/compare_moving_averages.py \
+  AAPL_2021-01-01_2025-12-31.csv \
+  --short-windows 10 20 50 \
+  --long-windows 50 100 200 \
+  --cost-bps 10
+```
+
+The comparison results are saved in `research/data/`.
