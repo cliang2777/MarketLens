@@ -26,6 +26,9 @@ def load_data(file_path):
     return rows
 
 def calculate(rows):
+    if not rows:
+        raise ValueError("No rows to calculate.")
+
     first_price = float(rows[0]["adjClose"])
     previous_price = None
     peak = 1.0
@@ -33,7 +36,8 @@ def calculate(rows):
 
     for row in rows:
         price = float(row["adjClose"])
-        if price <= 0:
+
+        if not math.isfinite(price) or price <= 0:
             raise ValueError(f"Invalid price on {row['date']}.")
 
         wealth = price / first_price

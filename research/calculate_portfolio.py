@@ -27,7 +27,10 @@ def check_inputs(files, weights):
             "The number of files and weights must be the same."
         )
 
-    if any(weight < 0 for weight in weights):
+    if any(
+        not math.isfinite(weight) or weight < 0
+        for weight in weights
+    ):
         raise ValueError("Portfolio weights cannot be negative.")
 
     if not math.isclose(sum(weights), 1.0, abs_tol=1e-8):
@@ -65,7 +68,7 @@ def build_portfolio(files, weights):
         ):
             price = float(dataset[index]["adjClose"])
 
-            if price <= 0:
+            if not math.isfinite(price) or price <= 0:
                 raise ValueError(
                     f"Invalid price on {current_date}."
                 )

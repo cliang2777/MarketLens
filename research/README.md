@@ -23,6 +23,8 @@ Tiingo API
 - `test_compare_moving_averages.py`: tests parameter generation, shared comparison periods, and CSV export.
 - `validate_moving_average.py`: selects parameters on training data and evaluates them on unseen testing data.
 - `test_validate_moving_average.py`: tests chronological splitting, execution timing, and validation output.
+- `test_calculate_metrics.py`: tests returns, risk metrics, validation, and CSV output.
+- `test_calculate_portfolio.py`: tests weights, portfolio calculations, validation, and CSV output.
 
 Downloaded CSV files are stored in `research/data/`. This folder is included in .gitignore.
 
