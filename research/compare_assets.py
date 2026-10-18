@@ -27,12 +27,18 @@ def analyze(file_path):
 
     return rows, results, summary
 
-def show_comparison(asset_file, benchmark_file):
-    asset_rows, asset_results, asset = analyze(asset_file)
-    benchmark_rows, benchmark_results, benchmark = analyze(benchmark_file)
+def calculate_comparison(asset_file, benchmark_file):
+    asset_rows, asset_results, asset_summary = analyze(
+        asset_file
+    )
+    benchmark_rows, benchmark_results, benchmark_summary = (
+        analyze(benchmark_file)
+    )
 
     asset_dates = [row["date"] for row in asset_rows]
-    benchmark_dates = [row["date"] for row in benchmark_rows]
+    benchmark_dates = [
+        row["date"] for row in benchmark_rows
+    ]
 
     if asset_dates != benchmark_dates:
         raise ValueError(
@@ -44,7 +50,6 @@ def show_comparison(asset_file, benchmark_file):
         for row in asset_results
         if row["simpleReturn"] is not None
     ]
-
     benchmark_returns = [
         row["simpleReturn"]
         for row in benchmark_results
@@ -55,7 +60,6 @@ def show_comparison(asset_file, benchmark_file):
         asset_returns,
         benchmark_returns,
     )
-
     benchmark_variance = statistics.variance(
         benchmark_returns
     )
@@ -72,8 +76,32 @@ def show_comparison(asset_file, benchmark_file):
         )
         / benchmark_variance
     )
-    asset_name = asset_file.stem.split("_")[0]
-    benchmark_name = benchmark_file.stem.split("_")[0]
+
+    return {
+        "assetName": asset_file.stem.split("_")[0],
+        "benchmarkName": benchmark_file.stem.split("_")[0],
+        "assetSummary": asset_summary,
+        "benchmarkSummary": benchmark_summary,
+        "annualReturnDifference": (
+            asset_summary["annualReturn"]
+            - benchmark_summary["annualReturn"]
+        ),
+        "returnCorrelation": correlation,
+        "beta": beta,
+    }
+
+def show_comparison(asset_file, benchmark_file):
+    comparison = calculate_comparison(
+        asset_file,
+        benchmark_file,
+    )
+
+    asset = comparison["assetSummary"]
+    benchmark = comparison["benchmarkSummary"]
+    asset_name = comparison["assetName"]
+    benchmark_name = comparison["benchmarkName"]
+    correlation = comparison["returnCorrelation"]
+    beta = comparison["beta"]
 
     print()
     print(f"{'Metric':<25}{asset_name:>15}{benchmark_name:>15}")
@@ -121,6 +149,7 @@ def show_comparison(asset_file, benchmark_file):
 
     print(f"Return correlation: {correlation:.4f}")
     print(f"Beta: {beta:.4f}")
+    return comparison
 
 def main():
     parser = argparse.ArgumentParser()
