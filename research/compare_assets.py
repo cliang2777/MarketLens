@@ -137,9 +137,7 @@ def show_comparison(asset_file, benchmark_file):
         f"{benchmark['maximumDrawdown']:>15.4%}"
     )
 
-    return_difference = (
-        asset["annualReturn"] - benchmark["annualReturn"]
-    )
+    return_difference = comparison["annualReturnDifference"]
 
     print()
     print(

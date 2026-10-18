@@ -25,6 +25,7 @@ Tiingo API
 - `test_validate_moving_average.py`: tests chronological splitting, execution timing, and validation output.
 - `test_calculate_metrics.py`: tests returns, risk metrics, validation, and CSV output.
 - `test_calculate_portfolio.py`: tests weights, portfolio calculations, validation, and CSV output.
+- `test_compare_assets.py`: tests correlation, beta, date validation, and structured comparison results.
 
 Downloaded CSV files are stored in `research/data/`. This folder is included in .gitignore.
 
