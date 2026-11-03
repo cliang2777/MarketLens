@@ -191,6 +191,17 @@ AAPL_2021-01-01_2025-12-31.csv \
 SPY_2021-01-01_2025-12-31.csv
 ```
 
+Asset comparison also supports in-memory price data through
+`calculate_comparison_from_rows(asset_rows, benchmark_rows, asset_name, benchmark_name)`.
+
+Each dataset must contain at least three records with `date` and `adjClose`.
+Dates should use the Tiingo ISO format. Records are sorted without changing
+the caller's data. Duplicate dates, invalid prices, and mismatched date
+ranges are rejected.
+
+The function returns asset and benchmark summaries, annualized return
+difference, return correlation, and beta.
+
 Calculate a 50/50 AAPL and MSFT portfolio:
 
 ```bash

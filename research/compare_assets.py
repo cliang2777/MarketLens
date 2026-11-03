@@ -1,5 +1,6 @@
 import argparse
 import statistics
+import math
 from pathlib import Path
 
 from calculate_metrics import (
@@ -27,24 +28,57 @@ def analyze(file_path):
 
     return rows, results, summary
 
-def calculate_comparison(asset_file, benchmark_file):
-    asset_rows, asset_results, asset_summary = analyze(
-        asset_file
-    )
-    benchmark_rows, benchmark_results, benchmark_summary = (
-        analyze(benchmark_file)
-    )
+def prepare_comparison_rows(rows):
+    if len(rows) < 3:
+        raise ValueError("At least three price observations are required.")
+
+    for row in rows:
+        if (
+            not isinstance(row, dict)
+            or "date" not in row
+            or "adjClose" not in row
+        ):
+            raise ValueError("Each row must contain date and adjClose.")
+
+        if not isinstance(row["date"], str) or not row["date"].strip():
+            raise ValueError("Each date must be a non-empty string.")
+
+        try:
+            price = float(row["adjClose"])
+        except (TypeError, ValueError):
+            raise ValueError(
+                f"Invalid price on {row['date']}."
+            ) from None
+
+        if not math.isfinite(price) or price <= 0:
+            raise ValueError(f"Invalid price on {row['date']}.")
+
+    ordered_rows = sorted(rows, key=lambda row: row["date"])
+    dates = [row["date"] for row in ordered_rows]
+
+    if len(dates) != len(set(dates)):
+        raise ValueError("Duplicate dates were found.")
+
+    return ordered_rows
+
+def calculate_comparison_from_rows(
+        asset_rows, benchmark_rows, asset_name, benchmark_name):
+    asset_rows = prepare_comparison_rows(asset_rows)
+    benchmark_rows = prepare_comparison_rows(benchmark_rows)
 
     asset_dates = [row["date"] for row in asset_rows]
-    benchmark_dates = [
-        row["date"] for row in benchmark_rows
-    ]
+    benchmark_dates = [row["date"] for row in benchmark_rows]
 
     if asset_dates != benchmark_dates:
         raise ValueError(
             "Asset and benchmark must contain the same dates."
         )
 
+    asset_results = calculate(asset_rows)
+    benchmark_results = calculate(benchmark_rows)
+
+    asset_summary = summarize(asset_results)
+    benchmark_summary = summarize(benchmark_results)
     asset_returns = [
         row["simpleReturn"]
         for row in asset_results
@@ -78,8 +112,8 @@ def calculate_comparison(asset_file, benchmark_file):
     )
 
     return {
-        "assetName": asset_file.stem.split("_")[0],
-        "benchmarkName": benchmark_file.stem.split("_")[0],
+        "assetName": asset_name,
+        "benchmarkName": benchmark_name,
         "assetSummary": asset_summary,
         "benchmarkSummary": benchmark_summary,
         "annualReturnDifference": (
@@ -89,6 +123,17 @@ def calculate_comparison(asset_file, benchmark_file):
         "returnCorrelation": correlation,
         "beta": beta,
     }
+
+def calculate_comparison(asset_file, benchmark_file):
+    asset_rows = load_data(asset_file)
+    benchmark_rows = load_data(benchmark_file)
+
+    return calculate_comparison_from_rows(
+        asset_rows,
+        benchmark_rows,
+        asset_file.stem.split("_")[0],
+        benchmark_file.stem.split("_")[0],
+    )
 
 def show_comparison(asset_file, benchmark_file):
     comparison = calculate_comparison(
