@@ -94,3 +94,15 @@ Run the full research and backend API test suite:
 ```bash
 python -m pytest -v
 ```
+
+---
+
+## Cloud Deployment (Render)
+
+This repository includes a one-click Render Blueprint ([render.yaml](./render.yaml)) and a production [Dockerfile](./Dockerfile):
+
+1. Sign in to [Render](https://render.com) with GitHub.
+2. Click **New +** -> **Blueprint** (or **Web Service**) and select `cliang2777/MarketLens`.
+3. Provide your `TIINGO_API_TOKEN` when prompted in Environment Variables.
+4. Click **Apply / Deploy** to obtain a public `https://*.onrender.com` URL.
+
