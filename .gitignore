@@ -29,6 +29,11 @@ frontend/dist/
 
 # Database
 postgres-data/
+backend/data/
+*.sqlite3
+*.sqlite3-journal
+*.sqlite3-wal
+*.sqlite3-shm
 
 # Research data
 research/data/
