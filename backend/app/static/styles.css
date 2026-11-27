@@ -242,6 +242,12 @@ body {
 }
 
 /* Top Telemetry Bezel */
+.top-chrome {
+  position: sticky;
+  top: 0;
+  z-index: 15;
+}
+
 .telemetry-bar {
   height: 50px;
   padding: 0 24px;
@@ -252,9 +258,10 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  position: sticky;
-  top: 0;
-  z-index: 15;
+}
+
+.mobile-nav-rail {
+  display: none;
 }
 
 .telemetry-left, .telemetry-right {
@@ -319,7 +326,8 @@ body {
 
 /* Language Hardware Switch */
 .lang-switch {
-  display: inline-flex;
+  display: inline-grid;
+  grid-template-columns: repeat(2, 38px);
   background: var(--well-bg);
   border: 1px solid rgba(148, 163, 184, 0.2);
   border-radius: 5px;
@@ -328,16 +336,23 @@ body {
 }
 
 .lang-opt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  padding: 0;
   background: transparent;
   border: none;
+  border-top: 1px solid transparent;
   color: var(--steel-400);
   font-family: var(--mono);
   font-size: 11px;
   font-weight: 700;
-  padding: 3px 9px;
+  line-height: 1;
   border-radius: 3px;
   cursor: pointer;
   transition: all 0.12s;
+  white-space: nowrap;
 }
 
 .lang-opt.active {
@@ -1785,7 +1800,8 @@ input[type="date"].metal-input::-webkit-calendar-picker-indicator {
 /* ==================== PHASE 1: GUIDED MODE, HEATMAP, CHART CONTROLS & MOBILE ==================== */
 
 .mode-switch {
-  display: inline-flex;
+  display: inline-grid;
+  grid-template-columns: repeat(2, 62px);
   background: var(--well-bg);
   border: 1px solid rgba(148, 163, 184, 0.22);
   border-radius: 5px;
@@ -1794,13 +1810,19 @@ input[type="date"].metal-input::-webkit-calendar-picker-indicator {
 }
 
 .mode-opt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  padding: 0;
   background: transparent;
   border: none;
+  border-top: 1px solid transparent;
   color: var(--steel-400);
   font-family: var(--mono);
   font-size: 11px;
   font-weight: 700;
-  padding: 3px 10px;
+  line-height: 1;
   border-radius: 3px;
   cursor: pointer;
   transition: all 0.14s;
@@ -2212,7 +2234,7 @@ body.guide-mode .panel-guide-note {
   }
 
   .mobile-menu-btn {
-    display: inline-flex;
+    display: none;
   }
 
   .mobile-brand {
@@ -2235,10 +2257,87 @@ body.guide-mode .panel-guide-note {
   }
 
   .telemetry-bar {
-    height: 52px;
+    height: 48px;
     padding: 0 12px;
     flex-wrap: nowrap;
     gap: 8px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  .mobile-nav-rail {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    background: linear-gradient(180deg, #131822 0%, #0d1118 100%);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 4px 14px rgba(0, 0, 0, 0.45);
+  }
+
+  .mobile-nav-tab {
+    position: relative;
+    height: 42px;
+    padding: 4px 2px 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    background: transparent;
+    border: none;
+    border-right: 1px solid rgba(148, 163, 184, 0.08);
+    color: var(--steel-300);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .mobile-nav-tab:last-child {
+    border-right: none;
+  }
+
+  .mobile-nav-tab:active {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .mobile-nav-idx {
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    color: var(--steel-500);
+  }
+
+  .mobile-nav-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  .mobile-nav-tab.active {
+    background: linear-gradient(180deg, rgba(230, 185, 99, 0.14) 0%, rgba(230, 185, 99, 0.03) 100%);
+    color: #ffffff;
+  }
+
+  .mobile-nav-tab.active .mobile-nav-idx {
+    color: var(--brass);
+  }
+
+  .mobile-nav-tab.active::after {
+    content: "";
+    position: absolute;
+    left: 14%;
+    right: 14%;
+    bottom: 0;
+    height: 2px;
+    border-radius: 2px 2px 0 0;
+    background: var(--brass);
+    box-shadow: 0 0 8px rgba(230, 185, 99, 0.8);
   }
 
   .telemetry-left,
@@ -2308,14 +2407,27 @@ body.guide-mode .panel-guide-note {
     font-size: 11.5px;
     letter-spacing: 0.06em;
   }
+  .mode-switch {
+    grid-template-columns: repeat(2, 54px);
+  }
+  .lang-switch {
+    grid-template-columns: repeat(2, 34px);
+  }
   .mode-opt,
   .lang-opt {
-    padding: 3px 6.5px;
+    height: 23px;
+    padding: 0;
     font-size: 10.5px;
   }
 }
 
-@media (max-width: 355px) {
+@media (max-width: 380px) {
+  .mobile-nav-label {
+    font-size: 10.5px;
+  }
+}
+
+@media (max-width: 325px) {
   .mobile-brand-name {
     display: none;
   }
@@ -2335,7 +2447,9 @@ body.guide-mode .panel-guide-note {
   }
 
   .sidebar-rail,
+  .top-chrome,
   .telemetry-bar,
+  .mobile-nav-rail,
   .mobile-backdrop,
   .welcome-overlay,
   .page-actions,

@@ -2313,7 +2313,7 @@ function switchPage(page) {
   state.activePage = page;
   closeMobileMenu();
   showError(null);
-  document.querySelectorAll(".nav-btn").forEach((b) => {
+  document.querySelectorAll(".nav-btn, .mobile-nav-tab").forEach((b) => {
     b.classList.toggle("active", b.dataset.page === page);
   });
   document.querySelectorAll(".page-view").forEach((sec) => {
@@ -2430,11 +2430,14 @@ function initEvents() {
   });
   document.getElementById("mobile-backdrop").addEventListener("click", closeMobileMenu);
 
-  // Navigation
-  document.querySelectorAll(".nav-btn").forEach((btn) => {
+  // Navigation (Desktop sidebar + Mobile top module rail)
+  document.querySelectorAll(".nav-btn, .mobile-nav-tab").forEach((btn) => {
     btn.addEventListener("click", () => {
       switchPage(btn.dataset.page);
       if (btn.dataset.page === "methodology") renderLatexFormulas();
+      if (btn.classList.contains("mobile-nav-tab")) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
     });
   });
 

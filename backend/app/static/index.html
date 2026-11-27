@@ -127,29 +127,55 @@
 
     <!-- Main Quantitative Chassis -->
     <div class="main-chassis">
-      <header class="telemetry-bar">
-        <div class="telemetry-left">
-          <button type="button" id="btn-mobile-menu" class="mobile-menu-btn" aria-label="Menu">☰</button>
-          <div class="mobile-brand">
-            <img src="/static/logo.svg" alt="AlphaMetric" class="mobile-brand-logo" />
-            <span class="mobile-brand-name">AlphaMetric</span>
-          </div>
-        </div>
-
-        <div class="telemetry-right">
-          <!-- PRO | GUIDE Dual View Mode Hardware Toggle -->
-          <div class="mode-switch" role="group" aria-label="View Mode">
-            <button type="button" class="mode-opt active" data-mode="pro" data-i18n="mode.pro">PRO</button>
-            <button type="button" class="mode-opt" data-mode="guide" data-i18n="mode.guide">GUIDE</button>
+      <div class="top-chrome">
+        <header class="telemetry-bar">
+          <div class="telemetry-left">
+            <button type="button" id="btn-mobile-menu" class="mobile-menu-btn" aria-label="Menu">☰</button>
+            <div class="mobile-brand">
+              <img src="/static/logo.svg" alt="AlphaMetric" class="mobile-brand-logo" />
+              <span class="mobile-brand-name">AlphaMetric</span>
+            </div>
           </div>
 
-          <!-- Language Hardware Toggle -->
-          <div class="lang-switch" role="group" aria-label="Language Switch">
-            <button type="button" class="lang-opt active" data-lang="en">EN</button>
-            <button type="button" class="lang-opt" data-lang="zh">中文</button>
+          <div class="telemetry-right">
+            <!-- PRO | GUIDE Dual View Mode Hardware Toggle -->
+            <div class="mode-switch" role="group" aria-label="View Mode">
+              <button type="button" class="mode-opt active" data-mode="pro" data-i18n="mode.pro">PRO</button>
+              <button type="button" class="mode-opt" data-mode="guide" data-i18n="mode.guide">GUIDE</button>
+            </div>
+
+            <!-- Language Hardware Toggle -->
+            <div class="lang-switch" role="group" aria-label="Language Switch">
+              <button type="button" class="lang-opt active" data-lang="en">EN</button>
+              <button type="button" class="lang-opt" data-lang="zh">中文</button>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
+
+        <!-- Mobile-Only Integrated 5-Module Metallic Rail (Hidden on Desktop > 860px) -->
+        <nav id="mobile-nav-rail" class="mobile-nav-rail" aria-label="Quant Modules">
+          <button type="button" class="mobile-nav-tab active" data-page="asset">
+            <span class="mobile-nav-idx">01</span>
+            <span class="mobile-nav-label" data-i18n="navShort.asset">Asset</span>
+          </button>
+          <button type="button" class="mobile-nav-tab" data-page="compare">
+            <span class="mobile-nav-idx">02</span>
+            <span class="mobile-nav-label" data-i18n="navShort.compare">Compare</span>
+          </button>
+          <button type="button" class="mobile-nav-tab" data-page="portfolio">
+            <span class="mobile-nav-idx">03</span>
+            <span class="mobile-nav-label" data-i18n="navShort.portfolio">Portfolio</span>
+          </button>
+          <button type="button" class="mobile-nav-tab" data-page="strategy">
+            <span class="mobile-nav-idx">04</span>
+            <span class="mobile-nav-label" data-i18n="navShort.strategy">Strategy</span>
+          </button>
+          <button type="button" class="mobile-nav-tab" data-page="methodology">
+            <span class="mobile-nav-idx">05</span>
+            <span class="mobile-nav-label" data-i18n="navShort.methodology">Docs</span>
+          </button>
+        </nav>
+      </div>
 
       <main class="workspace">
         <div id="global-error" class="alert-banner"></div>

@@ -13,6 +13,13 @@ export const I18N = {
       methodology: "方法论",
       methodologySub: "METHODOLOGY & CACHE",
     },
+    navShort: {
+      asset: "资产",
+      compare: "对比",
+      portfolio: "组合",
+      strategy: "策略",
+      methodology: "方法",
+    },
     mode: {
       pro: "专业",
       guide: "通俗解读",
@@ -218,6 +225,13 @@ export const I18N = {
       strategySub: "BACKTEST & OOS",
       methodology: "Methodology",
       methodologySub: "SPECS & CACHE",
+    },
+    navShort: {
+      asset: "Asset",
+      compare: "Compare",
+      portfolio: "Portfolio",
+      strategy: "Strategy",
+      methodology: "Docs",
     },
     mode: {
       pro: "PRO",
