@@ -2,6 +2,11 @@
 
 **AlphaMetric** is a full-stack quantitative financial analysis, portfolio optimization, and strategy backtesting terminal built on corporate-action-adjusted US market data.
 
+## Live Demo
+
+- **Primary (Google Cloud Run — Global, Fast ~2–4s Cold Start)**: https://alphametric-1066893509922.europe-west1.run.app
+- **Mirror (Render — Direct Access from Mainland China, ~30–50s Cold Start After Idle)**: https://alphametric-5e6f.onrender.com
+
 ## Key Capabilities
 
 1. **Asset Terminal**
