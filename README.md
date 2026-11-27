@@ -102,9 +102,21 @@ python -m pytest -v
 
 ---
 
-## Cloud Deployment (Render)
+## Cloud Deployment
 
-This repository includes a one-click Render Blueprint ([render.yaml](./render.yaml)) and a production [Dockerfile](./Dockerfile):
+### Option A: Google Cloud Run (Recommended — Fast ~2–4s Cold Start)
+
+This repository includes a lean production [Dockerfile](./Dockerfile) (`requirements-prod.txt`) tuned for Cloud Run's Always Free tier:
+
+1. Open [Google Cloud Run](https://console.cloud.google.com/run) and click **Deploy container** -> **Service**.
+2. Select **Continuously deploy from a repository** and connect `cliang2777/AlphaMetric` (branch `main`, Build type: **Dockerfile**).
+3. Configure **Authentication**: `Allow unauthenticated invocations`, **Min instances**: `0`, **Max instances**: `2`, **Memory**: `512 MiB`, **Port**: `8080`.
+4. Under **Variables & Secrets**, add `TIINGO_API_TOKEN`.
+5. Click **Create** to deploy with automatic GitHub CI/CD and a public `https://*.run.app` URL.
+
+### Option B: Render Blueprint
+
+This repository also includes a one-click Render Blueprint ([render.yaml](./render.yaml)):
 
 1. Sign in to [Render](https://render.com) with GitHub.
 2. Click **New +** -> **Blueprint** (or **Web Service**) and select `cliang2777/AlphaMetric`.
