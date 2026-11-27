@@ -18,9 +18,9 @@ async def lifespan(_app: FastAPI):
 
 
 app = FastAPI(
-    title="MarketLens Quantitative Terminal",
+    title="AlphaMetric Quantitative Terminal",
     version="1.0.0",
-    description="Financial market analysis, portfolio optimization, and out-of-sample strategy backtesting.",
+    description="Quantitative financial analysis, econometrics, portfolio optimization, and out-of-sample validation.",
     lifespan=lifespan,
 )
 
@@ -43,6 +43,15 @@ if STATIC_DIR.exists():
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 
+@app.api_route("/apple-touch-icon-precomposed.png", methods=["GET", "HEAD"], include_in_schema=False)
+@app.api_route("/apple-touch-icon.png", methods=["GET", "HEAD"], include_in_schema=False)
+def apple_touch_icon():
+    icon_file = STATIC_DIR / "apple-touch-icon.png"
+    if icon_file.exists():
+        return FileResponse(icon_file, media_type="image/png")
+    return {"message": "Icon not found."}
+
+
 @app.get("/{full_path:path}", include_in_schema=False)
 def serve_spa(full_path: str):
     candidate = (STATIC_DIR / full_path).resolve()
@@ -55,4 +64,4 @@ def serve_spa(full_path: str):
     index_file = STATIC_DIR / "index.html"
     if index_file.exists():
         return FileResponse(index_file)
-    return {"message": "MarketLens UI assets not found."}
+    return {"message": "AlphaMetric UI assets not found."}

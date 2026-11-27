@@ -16,6 +16,52 @@ from compare_moving_averages import build_window_pairs, compare_window_pairs
 from validate_moving_average import evaluate_out_of_sample, split_data
 
 
+def compute_monthly_returns(
+    series: list[dict],
+    wealth_key: str = "wealthIndex",
+) -> list[dict]:
+    """Compute exact compounded monthly and annual return matrix from wealth series."""
+    if not series:
+        return []
+
+    month_end_wealth: dict[tuple[int, int], float] = {}
+    for pt in series:
+        d = pt["date"]
+        w = pt.get(wealth_key)
+        if w is None or not math.isfinite(w) or w <= 0:
+            continue
+        yr = int(d[:4])
+        mo = int(d[5:7])
+        month_end_wealth[(yr, mo)] = float(w)
+
+    if not month_end_wealth:
+        return []
+
+    ordered_keys = sorted(month_end_wealth.keys())
+    by_year: dict[int, dict[str, float]] = {}
+    year_start_wealth: dict[int, float] = {}
+    year_end_wealth: dict[int, float] = {}
+
+    prev_wealth = 1.0
+    for yr, mo in ordered_keys:
+        if yr not in year_start_wealth:
+            year_start_wealth[yr] = prev_wealth
+        cur_wealth = month_end_wealth[(yr, mo)]
+        m_ret = cur_wealth / prev_wealth - 1.0
+        by_year.setdefault(yr, {})[str(mo)] = m_ret
+        year_end_wealth[yr] = cur_wealth
+        prev_wealth = cur_wealth
+
+    return [
+        {
+            "year": yr,
+            "months": by_year[yr],
+            "ytd": year_end_wealth[yr] / year_start_wealth[yr] - 1.0,
+        }
+        for yr in sorted(by_year.keys())
+    ]
+
+
 def align_series_by_date(
     series_map: dict[str, list[dict]],
 ) -> tuple[dict[str, list[dict]], list[str]]:
@@ -123,10 +169,17 @@ def analyze_single_asset(
     for item in asset_series:
         d = item["date"]
         raw = raw_by_date[d]
+        adj_c = item["adjClose"]
+        adj_o = float(raw.get("adjOpen", adj_c))
+        adj_h = float(raw.get("adjHigh", max(adj_o, adj_c)))
+        adj_l = float(raw.get("adjLow", min(adj_o, adj_c)))
         point = {
             "date": d,
-            "adjClose": item["adjClose"],
-            "close": float(raw.get("close", item["adjClose"])),
+            "adjOpen": adj_o,
+            "adjHigh": adj_h,
+            "adjLow": adj_l,
+            "adjClose": adj_c,
+            "close": float(raw.get("close", adj_c)),
             "volume": float(raw.get("volume", 0.0)),
             "simpleReturn": item["simpleReturn"],
             "wealthIndex": item["wealthIndex"],
@@ -143,6 +196,7 @@ def analyze_single_asset(
         "summary": asset_summary,
         "stats": extra_stats,
         "benchmarkComparison": comparison_info,
+        "monthlyReturns": compute_monthly_returns(merged_series, "wealthIndex"),
         "series": merged_series,
     }
 
@@ -400,6 +454,7 @@ def analyze_portfolio_and_frontier(
         "summary": portfolio_summary,
         "assetBreakdown": asset_breakdown,
         "benchmarkComparison": bench_info,
+        "monthlyReturns": compute_monthly_returns(series_out, "wealthIndex"),
         "series": series_out,
         "frontier": {
             "isTwoAssetCurve": len(tickers) == 2,
@@ -525,6 +580,7 @@ def run_ma_backtest(
         },
         "priceSignalSeries": signals,
         "equitySeries": equity_series,
+        "monthlyReturns": compute_monthly_returns(equity_series, "strategyWealth"),
         "trades": trades,
     }
 

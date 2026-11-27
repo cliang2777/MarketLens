@@ -1,21 +1,78 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MarketLens · Quantitative Metallic Terminal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0c0f14" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="apple-mobile-web-app-title" content="AlphaMetric" />
+  <title>AlphaMetric · Quantitative &amp; Econometric Terminal</title>
+  <link rel="icon" type="image/svg+xml" href="/static/logo.svg?v=2" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/static/icon-192.png?v=2" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png?v=2" />
+  <link rel="manifest" href="/static/manifest.json?v=2" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="/static/styles.css" />
 </head>
 <body>
+  <!-- Welcome Entry Mode Selector Modal -->
+  <div id="welcome-overlay" class="welcome-overlay" role="dialog" aria-modal="true" aria-labelledby="welcome-modal-title">
+    <div class="welcome-modal">
+      <div class="welcome-top">
+        <div class="brand-mark-row">
+          <div class="brand-emblem"><img src="/static/logo.svg" alt="AlphaMetric" /></div>
+          <div>
+            <div class="welcome-eyebrow" data-i18n="modal.eyebrow">WELCOME TO ALPHAMETRIC</div>
+          </div>
+        </div>
+        <div class="lang-switch" role="group" aria-label="Language Switch">
+          <button type="button" class="lang-opt active" data-lang="en">EN</button>
+          <button type="button" class="lang-opt" data-lang="zh">中文</button>
+        </div>
+      </div>
+
+      <h2 id="welcome-modal-title" class="welcome-title" data-i18n="modal.title">Select Your Workspace Experience</h2>
+      <p class="welcome-sub" data-i18n="modal.subtitle">Choose how metrics are presented. You can switch anytime in the top bar.</p>
+
+      <div class="welcome-choices">
+        <button type="button" class="choice-card pro-card" data-choose-mode="pro">
+          <div>
+            <span class="choice-badge" data-i18n="modal.proBadge">ANALYST · QUANTITATIVE</span>
+            <div class="choice-title" data-i18n="modal.proTitle">Professional Terminal (PRO)</div>
+            <p class="choice-desc" data-i18n="modal.proDesc">Designed for finance, econometrics, and technical reviewers: clean institutional readouts, raw statistics, and uncluttered precision charts.</p>
+          </div>
+          <div class="choice-cta" data-i18n="modal.proBtn">Launch Pro Terminal →</div>
+        </button>
+
+        <button type="button" class="choice-card guide-card" data-choose-mode="guide">
+          <div>
+            <span class="choice-badge" data-i18n="modal.guideBadge">EXECUTIVE · BEGINNER FRIENDLY</span>
+            <div class="choice-title" data-i18n="modal.guideTitle">Guided Insight Mode (GUIDE)</div>
+            <p class="choice-desc" data-i18n="modal.guideDesc">Designed for general readers and executive review: automated plain-English takeaways, $10,000 capital simulations, and inline metric explanations.</p>
+          </div>
+          <div class="choice-cta" data-i18n="modal.guideBtn">Launch Guided Mode →</div>
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- Floating Brushed Metallic Popover Portals (Ticker Search, Custom Selects, Custom Calendar) -->
+  <div id="ticker-ac-dropdown" class="ticker-ac-dropdown" role="listbox"></div>
+  <div id="metal-select-popover" class="metal-popover" role="listbox"></div>
+  <div id="metal-date-popover" class="metal-popover cal-popover" role="dialog"></div>
+
+  <div id="mobile-backdrop" class="mobile-backdrop"></div>
+
   <div class="app-shell">
     <!-- Brushed Gunmetal Sidebar -->
-    <aside class="sidebar-rail">
+    <aside id="sidebar-rail" class="sidebar-rail">
       <div class="brand-plate">
         <div class="brand-mark-row">
-          <div class="brand-emblem">ML</div>
-          <div class="brand-title">MarketLens</div>
+          <div class="brand-emblem" id="sidebar-brand-emblem"><img src="/static/logo.svg" alt="AlphaMetric" /></div>
+          <div class="brand-title">AlphaMetric</div>
         </div>
-        <div class="brand-sub" data-i18n="brandSubtitle">精密量化分析与策略回测终端</div>
+        <div class="brand-sub" data-i18n="brandSubtitle">PRECISION QUANTITATIVE &amp; ECONOMETRIC TERMINAL</div>
       </div>
 
       <div class="nav-section-label">QUANT MODULES</div>
@@ -66,48 +123,30 @@
           </button>
         </li>
       </ul>
-
-      <div class="sidebar-footer">
-        <div class="spec-pill-row">
-          <span>CONVENTION</span>
-          <span class="val-brass">252 DAYS/YR</span>
-        </div>
-        <div class="spec-pill-row">
-          <span>PRICING</span>
-          <span>ADJ. OHLC</span>
-        </div>
-        <div class="spec-pill-row">
-          <span>EXECUTION</span>
-          <span>NEXT ADJ. OPEN</span>
-        </div>
-      </div>
     </aside>
 
     <!-- Main Quantitative Chassis -->
     <div class="main-chassis">
       <header class="telemetry-bar">
         <div class="telemetry-left">
-          <div class="bezel-chip">
-            <span class="led-dot"></span>
-            <span id="status-online" data-i18n="status.online">系统在线</span>
-          </div>
-          <div class="bezel-chip">
-            <span class="led-dot cyan"></span>
-            <span id="cache-summary-chip">SQLITE CACHE · --</span>
-          </div>
-          <div class="bezel-chip" id="tiingo-chip">
-            <span class="led-dot amber" id="tiingo-led"></span>
-            <span id="tiingo-status-text">TIINGO</span>
+          <button type="button" id="btn-mobile-menu" class="mobile-menu-btn" aria-label="Menu">☰</button>
+          <div class="mobile-brand">
+            <img src="/static/logo.svg" alt="AlphaMetric" class="mobile-brand-logo" />
+            <span class="mobile-brand-name">AlphaMetric</span>
           </div>
         </div>
 
         <div class="telemetry-right">
-          <div class="bezel-chip" id="last-query-telemetry">
-            <span>READY</span>
+          <!-- PRO | GUIDE Dual View Mode Hardware Toggle -->
+          <div class="mode-switch" role="group" aria-label="View Mode">
+            <button type="button" class="mode-opt active" data-mode="pro" data-i18n="mode.pro">PRO</button>
+            <button type="button" class="mode-opt" data-mode="guide" data-i18n="mode.guide">GUIDE</button>
           </div>
+
+          <!-- Language Hardware Toggle -->
           <div class="lang-switch" role="group" aria-label="Language Switch">
-            <button class="lang-opt active" data-lang="zh">中文</button>
-            <button class="lang-opt" data-lang="en">EN</button>
+            <button type="button" class="lang-opt active" data-lang="en">EN</button>
+            <button type="button" class="lang-opt" data-lang="zh">中文</button>
           </div>
         </div>
       </header>
@@ -120,7 +159,11 @@
           <div class="page-header">
             <div>
               <h1 class="page-title" data-i18n="assetPage.title">单资产深度风险收益终端</h1>
-              <p class="page-subtitle" data-i18n="assetPage.subtitle">基于复权收盘价 (adjClose) 计算累计净值、水下回撤与相对基准风险暴露。</p>
+              <p class="page-subtitle" data-i18n="assetPage.subtitle">基于复权价格 (adjOHLC) 计算累计净值、K线成交量、月度热力图与相对基准风险暴露。</p>
+            </div>
+            <div class="page-actions">
+              <button type="button" class="steel-chip" id="btn-export-asset-csv" data-i18n="common.exportCsv">导出 CSV</button>
+              <button type="button" class="steel-chip btn-print-sheet" data-i18n="common.printReport">打印 / PDF 简报</button>
             </div>
           </div>
 
@@ -128,8 +171,8 @@
             <form id="form-asset">
               <div class="controls-grid">
                 <div class="field-group">
-                  <label class="field-label" data-i18n="common.ticker">股票代码</label>
-                  <input id="asset-ticker" class="metal-input" type="text" value="AAPL" required />
+                  <label class="field-label" data-i18n="common.ticker">US Ticker Symbol</label>
+                  <input id="asset-ticker" class="metal-input" type="text" autocomplete="off" placeholder="Search US ticker or name (e.g. AAPL, Coca-Cola)" value="AAPL" required />
                 </div>
                 <div class="field-group">
                   <label class="field-label" data-i18n="common.benchmark">基准指数</label>
@@ -160,44 +203,71 @@
                   <button type="button" class="steel-chip asset-quick-ticker" data-ticker="SPY">SPY</button>
                   <button type="button" class="steel-chip asset-quick-ticker" data-ticker="NVDA">NVDA</button>
                   <button type="button" class="steel-chip asset-quick-ticker" data-ticker="QQQ">QQQ</button>
-                  <button type="button" class="steel-chip asset-quick-ticker" data-ticker="GOOGL">GOOGL</button>
+                  <button type="button" class="steel-chip asset-quick-ticker" data-ticker="GLD">GLD</button>
                 </div>
                 <div class="chip-group">
                   <button type="button" class="steel-chip date-preset" data-target="asset" data-start="2021-01-01" data-end="2025-12-31">2021–2025</button>
                   <button type="button" class="steel-chip date-preset" data-target="asset" data-start="2023-01-01" data-end="2025-12-31">3Y (23–25)</button>
                   <button type="button" class="steel-chip date-preset" data-target="asset" data-start="2025-01-01" data-end="2025-12-31">1Y (2025)</button>
-                  <label class="checkbox-inline">
-                    <input type="checkbox" id="asset-force-refresh" />
-                    <span data-i18n="common.forceRefresh">强制从 Tiingo 刷新</span>
-                  </label>
                 </div>
               </div>
             </form>
           </div>
+
+          <!-- Company / Security Profile Plate -->
+          <div id="asset-profile-card" class="profile-plate"></div>
+
+          <!-- Guided Mode Plain-English Insight Banner -->
+          <div id="guided-asset" class="guided-banner"></div>
 
           <div id="asset-kpis" class="kpi-grid"></div>
 
           <div class="charts-grid-2">
             <div class="metal-panel">
               <div class="panel-header">
-                <div class="panel-title" data-i18n="common.wealthCurve">归一化复权净值曲线 (初始 = 1.00x)</div>
-                <span class="field-label" id="asset-span-badge"></span>
+                <div class="panel-title" id="asset-main-chart-title" data-i18n="common.wealthCurve">归一化复权净值曲线 (初始 = 1.00x)</div>
+                <div class="panel-actions">
+                  <div class="mini-switch">
+                    <button type="button" class="mini-opt active" data-asset-chart="wealth" data-i18n="common.viewWealth">净值对比</button>
+                    <button type="button" class="mini-opt" data-asset-chart="candle" data-i18n="common.viewCandle">K线+成交量</button>
+                  </div>
+                  <div class="mini-switch">
+                    <button type="button" class="mini-opt active" data-scale-target="asset" data-scale="lin">LIN</button>
+                    <button type="button" class="mini-opt" data-scale-target="asset" data-scale="log">LOG</button>
+                  </div>
+                  <button type="button" class="mini-btn btn-save-png" data-canvas="chart-asset-wealth" data-name="asset-price">PNG</button>
+                </div>
               </div>
-              <div class="chart-well"><canvas id="chart-asset-wealth"></canvas></div>
+              <div class="panel-guide-note" id="asset-main-chart-guide" data-i18n="panelGuides.assetWealth"></div>
+              <div class="chart-well tall"><canvas id="chart-asset-wealth"></canvas></div>
             </div>
 
             <div class="metal-panel">
               <div class="panel-header">
-                <div class="panel-title" data-i18n="common.drawdownCurve">水下回撤曲线 (Underwater Drawdown)</div>
+                <div class="panel-title" data-i18n="common.drawdownCurve">Underwater Drawdown Curve</div>
+                <div class="panel-actions">
+                  <span class="field-label" id="asset-span-badge"></span>
+                  <button type="button" class="mini-btn btn-save-png" data-canvas="chart-asset-drawdown" data-name="asset-drawdown">PNG</button>
+                </div>
               </div>
-              <div class="chart-well"><canvas id="chart-asset-drawdown"></canvas></div>
+              <div class="panel-guide-note" data-i18n="panelGuides.assetDrawdown"></div>
+              <div class="chart-well tall"><canvas id="chart-asset-drawdown"></canvas></div>
             </div>
           </div>
 
           <div class="metal-panel">
             <div class="panel-header">
-              <div class="panel-title" data-i18n="assetPage.diagnostics">微观收益特征与极值统计</div>
+              <div class="panel-title" data-i18n="common.monthlyHeatmap">Monthly Returns Calendar Heatmap</div>
             </div>
+            <div class="panel-guide-note" data-i18n="panelGuides.assetHeatmap"></div>
+            <div class="table-scroll" id="asset-monthly-heatmap"></div>
+          </div>
+
+          <div class="metal-panel">
+            <div class="panel-header">
+              <div class="panel-title" data-i18n="assetPage.diagnostics">Return Distribution &amp; Extremes</div>
+            </div>
+            <div class="panel-guide-note" data-i18n="panelGuides.assetDiagnostics"></div>
             <div class="table-scroll">
               <table class="metal-table" id="table-asset-diagnostics"></table>
             </div>
@@ -211,52 +281,75 @@
               <h1 class="page-title" data-i18n="comparePage.title">多资产横向对比与相关性矩阵</h1>
               <p class="page-subtitle" data-i18n="comparePage.subtitle">自动对齐共同交易日历，同屏对比净值演化、Beta 弹性与日收益率相关性。</p>
             </div>
+            <div class="page-actions">
+              <button type="button" class="steel-chip btn-print-sheet" data-i18n="common.printReport">打印 / PDF 简报</button>
+            </div>
           </div>
 
           <div class="metal-panel">
             <form id="form-compare">
+              <div class="panel-header">
+                <div class="panel-title" data-i18n="common.tickers">US Ticker Symbols</div>
+                <div class="chip-group">
+                  <button type="button" class="steel-chip" id="btn-add-compare-ticker" data-i18n="portfolioPage.addTicker">+ Add Ticker</button>
+                </div>
+              </div>
+
+              <div id="compare-ticker-list" class="compare-ticker-grid"></div>
+
               <div class="controls-grid">
-                <div class="field-group" style="grid-column: span 2;">
-                  <label class="field-label" data-i18n="common.tickers">对比代码（逗号分隔）</label>
-                  <input id="compare-tickers" class="metal-input" type="text" value="AAPL, MSFT" required />
+                <div class="field-group">
+                  <label class="field-label" data-i18n="common.benchmark">Benchmark</label>
+                  <input id="compare-benchmark" class="metal-input" type="text" autocomplete="off" placeholder="US e.g. SPY" value="SPY" required />
                 </div>
                 <div class="field-group">
-                  <label class="field-label" data-i18n="common.benchmark">基准指数</label>
-                  <input id="compare-benchmark" class="metal-input" type="text" value="SPY" required />
-                </div>
-                <div class="field-group">
-                  <label class="field-label" data-i18n="common.startDate">起始日期</label>
+                  <label class="field-label" data-i18n="common.startDate">Start Date</label>
                   <input id="compare-start" class="metal-input" type="date" value="2021-01-01" required />
                 </div>
                 <div class="field-group">
-                  <label class="field-label" data-i18n="common.endDate">结束日期</label>
+                  <label class="field-label" data-i18n="common.endDate">End Date</label>
                   <input id="compare-end" class="metal-input" type="date" value="2025-12-31" required />
                 </div>
                 <div class="field-group">
-                  <button type="submit" class="brass-btn" id="btn-run-compare" data-i18n="common.runAnalysis">执行分析</button>
+                  <button type="submit" class="brass-btn" id="btn-run-compare" data-i18n="common.runAnalysis">EXECUTE RUN</button>
                 </div>
               </div>
               <div class="preset-strip">
                 <div class="chip-group">
-                  <button type="button" class="steel-chip compare-preset" data-tickers="AAPL, MSFT" data-bench="SPY">AAPL + MSFT vs SPY</button>
-                  <button type="button" class="steel-chip compare-preset" data-tickers="AAPL, MSFT, NVDA, GOOGL" data-bench="QQQ">Big Tech vs QQQ</button>
+                  <button type="button" class="steel-chip compare-preset" data-tickers="AAPL,MSFT" data-bench="SPY">AAPL + MSFT vs SPY</button>
+                  <button type="button" class="steel-chip compare-preset" data-tickers="AAPL,MSFT,NVDA,GOOGL" data-bench="QQQ">Big Tech vs QQQ</button>
+                  <button type="button" class="steel-chip compare-preset" data-tickers="SPY,QQQ,TLT,GLD" data-bench="SPY">Stocks + Bonds + Gold</button>
                 </div>
               </div>
             </form>
           </div>
 
+          <div id="guided-compare" class="guided-banner"></div>
+
           <div class="charts-grid-2">
             <div class="metal-panel">
               <div class="panel-header">
-                <div class="panel-title" data-i18n="common.wealthCurve">归一化复权净值曲线 (初始 = 1.00x)</div>
-                <span class="field-label" id="compare-span-badge"></span>
+                <div class="panel-title" data-i18n="common.wealthCurve">Normalized Wealth Index (Base = 1.00x)</div>
+                <div class="panel-actions">
+                  <span class="field-label" id="compare-span-badge"></span>
+                  <div class="mini-switch">
+                    <button type="button" class="mini-opt active" data-scale-target="compare" data-scale="lin">LIN</button>
+                    <button type="button" class="mini-opt" data-scale-target="compare" data-scale="log">LOG</button>
+                  </div>
+                  <button type="button" class="mini-btn btn-save-png" data-canvas="chart-compare-wealth" data-name="compare-wealth">PNG</button>
+                </div>
               </div>
+              <div class="panel-guide-note" data-i18n="panelGuides.compareWealth"></div>
               <div class="chart-well"><canvas id="chart-compare-wealth"></canvas></div>
             </div>
             <div class="metal-panel">
               <div class="panel-header">
-                <div class="panel-title" data-i18n="common.drawdownCurve">水下回撤曲线 (Underwater Drawdown)</div>
+                <div class="panel-title" data-i18n="common.drawdownCurve">Underwater Drawdown Curve</div>
+                <div class="panel-actions">
+                  <button type="button" class="mini-btn btn-save-png" data-canvas="chart-compare-drawdown" data-name="compare-drawdown">PNG</button>
+                </div>
               </div>
+              <div class="panel-guide-note" data-i18n="panelGuides.compareDrawdown"></div>
               <div class="chart-well"><canvas id="chart-compare-drawdown"></canvas></div>
             </div>
           </div>
@@ -264,8 +357,9 @@
           <div class="charts-grid-2">
             <div class="metal-panel">
               <div class="panel-header">
-                <div class="panel-title" data-i18n="comparePage.summaryTable">多标的量化指标对照表</div>
+                <div class="panel-title" data-i18n="comparePage.summaryTable">Cross-Asset Quantitative Summary</div>
               </div>
+              <div class="panel-guide-note" data-i18n="panelGuides.compareSummary"></div>
               <div class="table-scroll">
                 <table class="metal-table" id="table-compare-summary"></table>
               </div>
@@ -273,8 +367,9 @@
 
             <div class="metal-panel">
               <div class="panel-header">
-                <div class="panel-title" data-i18n="comparePage.matrixTitle">日收益率相关系数热力矩阵</div>
+                <div class="panel-title" data-i18n="comparePage.matrixTitle">Pairwise Daily Return Correlation Matrix</div>
               </div>
+              <div class="panel-guide-note" data-i18n="panelGuides.compareCorr"></div>
               <div id="compare-corr-matrix"></div>
             </div>
           </div>
@@ -287,20 +382,25 @@
               <h1 class="page-title" data-i18n="portfolioPage.title">多资产组合构建与有效前沿寻优</h1>
               <p class="page-subtitle" data-i18n="portfolioPage.subtitle">构建自定义权重投资组合，并通过网格遍历描绘风险-收益有效前沿 (Risk-Return Frontier)。</p>
             </div>
+            <div class="page-actions">
+              <button type="button" class="steel-chip" id="btn-export-port-csv" data-i18n="common.exportCsv">导出 CSV</button>
+              <button type="button" class="steel-chip btn-print-sheet" data-i18n="common.printReport">打印 / PDF 简报</button>
+            </div>
           </div>
 
           <div class="metal-panel">
             <form id="form-portfolio">
               <div class="panel-header">
-                <div class="panel-title" data-i18n="portfolioPage.allocations">资产配置权重 (总和须为 100%)</div>
+                <div class="panel-title" data-i18n="portfolioPage.allocations">Asset Allocations</div>
                 <div class="chip-group">
-                  <button type="button" class="steel-chip" id="btn-add-alloc" data-i18n="portfolioPage.addAsset">+ 添加资产</button>
+                  <button type="button" class="steel-chip" id="btn-add-alloc" data-i18n="portfolioPage.addAsset">+ Add Asset</button>
                   <button type="button" class="steel-chip" id="btn-equal-alloc" data-i18n="portfolioPage.equalWeight">等权分配</button>
                   <button type="button" class="steel-chip" id="btn-norm-alloc" data-i18n="portfolioPage.normalize">归一化至 100%</button>
                   <span class="bezel-chip" id="alloc-sum-badge">SUM: 100%</span>
                 </div>
               </div>
 
+              <div class="panel-guide-note" data-i18n="panelGuides.portAlloc"></div>
               <div id="portfolio-alloc-list" class="alloc-list"></div>
 
               <div class="controls-grid">
@@ -335,30 +435,52 @@
             </form>
           </div>
 
+          <div id="guided-portfolio" class="guided-banner"></div>
           <div id="portfolio-kpis" class="kpi-grid"></div>
           <div id="portfolio-optimal-cards" class="kpi-grid"></div>
 
           <div class="charts-grid-2">
             <div class="metal-panel">
               <div class="panel-header">
-                <div class="panel-title" data-i18n="portfolioPage.frontierChart">风险-收益有效前沿散点曲线</div>
+                <div class="panel-title" data-i18n="portfolioPage.frontierChart">Portfolio Risk-Return Efficient Frontier</div>
+                <div class="panel-actions">
+                  <button type="button" class="mini-btn btn-save-png" data-canvas="chart-portfolio-frontier" data-name="portfolio-frontier">PNG</button>
+                </div>
               </div>
+              <div class="panel-guide-note" data-i18n="panelGuides.portFrontier"></div>
               <div class="chart-well tall"><canvas id="chart-portfolio-frontier"></canvas></div>
             </div>
             <div class="metal-panel">
               <div class="panel-header">
-                <div class="panel-title" data-i18n="common.wealthCurve">归一化复权净值曲线 (初始 = 1.00x)</div>
-                <span class="field-label" id="port-span-badge"></span>
+                <div class="panel-title" data-i18n="common.wealthCurve">Normalized Wealth Index (Base = 1.00x)</div>
+                <div class="panel-actions">
+                  <span class="field-label" id="port-span-badge"></span>
+                  <div class="mini-switch">
+                    <button type="button" class="mini-opt active" data-scale-target="portfolio" data-scale="lin">LIN</button>
+                    <button type="button" class="mini-opt" data-scale-target="portfolio" data-scale="log">LOG</button>
+                  </div>
+                  <button type="button" class="mini-btn btn-save-png" data-canvas="chart-portfolio-wealth" data-name="portfolio-wealth">PNG</button>
+                </div>
               </div>
+              <div class="panel-guide-note" data-i18n="panelGuides.portWealth"></div>
               <div class="chart-well tall"><canvas id="chart-portfolio-wealth"></canvas></div>
             </div>
+          </div>
+
+          <div class="metal-panel">
+            <div class="panel-header">
+              <div class="panel-title" data-i18n="common.monthlyHeatmap">Monthly Returns Calendar Heatmap</div>
+            </div>
+            <div class="panel-guide-note" data-i18n="panelGuides.portHeatmap"></div>
+            <div class="table-scroll" id="portfolio-monthly-heatmap"></div>
           </div>
 
           <div class="charts-grid-2">
             <div class="metal-panel">
               <div class="panel-header">
-                <div class="panel-title" data-i18n="portfolioPage.componentTable">成分资产独立表现与权重贡献</div>
+                <div class="panel-title" data-i18n="portfolioPage.componentTable">Constituent Asset Metrics &amp; Weights</div>
               </div>
+              <div class="panel-guide-note" data-i18n="panelGuides.portComponents"></div>
               <div class="table-scroll">
                 <table class="metal-table" id="table-portfolio-components"></table>
               </div>
@@ -366,8 +488,9 @@
 
             <div class="metal-panel">
               <div class="panel-header">
-                <div class="panel-title" data-i18n="portfolioPage.sweepTable">权重网格扫描明细表</div>
+                <div class="panel-title" data-i18n="portfolioPage.sweepTable">Allocation Sweep Comparison Table</div>
               </div>
+              <div class="panel-guide-note" data-i18n="panelGuides.portSweep"></div>
               <div class="table-scroll" style="max-height: 290px; overflow-y: auto;">
                 <table class="metal-table" id="table-portfolio-sweep"></table>
               </div>
@@ -382,6 +505,10 @@
               <h1 class="page-title" data-i18n="strategyPage.title">双均线趋势回测与样本外验证实验室</h1>
               <p class="page-subtitle" data-i18n="strategyPage.subtitle">收盘出信号、次日复权开盘价 (adjOpen) 成交，严格杜绝未来函数并计入双边换手成本。</p>
             </div>
+            <div class="page-actions">
+              <button type="button" class="steel-chip" id="btn-export-strat-csv" data-i18n="common.exportCsv">导出 CSV</button>
+              <button type="button" class="steel-chip btn-print-sheet" data-i18n="common.printReport">打印 / PDF 简报</button>
+            </div>
           </div>
 
           <div class="subtab-bar">
@@ -395,8 +522,8 @@
               <form id="form-strat-single">
                 <div class="controls-grid">
                   <div class="field-group">
-                    <label class="field-label" data-i18n="common.ticker">股票代码</label>
-                    <input id="strat-ticker" class="metal-input" type="text" value="AAPL" required />
+                    <label class="field-label" data-i18n="common.ticker">US Ticker Symbol</label>
+                    <input id="strat-ticker" class="metal-input" type="text" autocomplete="off" placeholder="US ticker or name (e.g. AAPL)" value="AAPL" required />
                   </div>
                   <div class="field-group">
                     <label class="field-label" data-i18n="strategyPage.shortWindow">短期均线窗口 (天)</label>
@@ -425,36 +552,62 @@
               </form>
             </div>
 
+            <div id="guided-strat-single" class="guided-banner"></div>
             <div id="strat-kpis" class="kpi-grid"></div>
 
             <div class="charts-grid-2">
               <div class="metal-panel">
                 <div class="panel-header">
-                  <div class="panel-title" data-i18n="strategyPage.priceMaChart">复权价格、双均线轨迹与次日开盘买卖点标记</div>
+                  <div class="panel-title" data-i18n="strategyPage.priceMaChart">Adjusted Close, SMA Overlays &amp; Next-Open Trade Executions</div>
+                  <div class="panel-actions">
+                    <button type="button" class="mini-btn btn-save-png" data-canvas="chart-strat-signals" data-name="strategy-signals">PNG</button>
+                  </div>
                 </div>
+                <div class="panel-guide-note" data-i18n="panelGuides.stratSignals"></div>
                 <div class="chart-well tall"><canvas id="chart-strat-signals"></canvas></div>
               </div>
               <div class="metal-panel">
                 <div class="panel-header">
-                  <div class="panel-title" data-i18n="strategyPage.equityCompareChart">策略净值 vs. 同区间买入持有净值</div>
-                  <span class="field-label" id="strat-span-badge"></span>
+                  <div class="panel-title" data-i18n="strategyPage.equityCompareChart">Strategy Wealth Index vs. Buy &amp; Hold</div>
+                  <div class="panel-actions">
+                    <span class="field-label" id="strat-span-badge"></span>
+                    <div class="mini-switch">
+                      <button type="button" class="mini-opt active" data-scale-target="strategy" data-scale="lin">LIN</button>
+                      <button type="button" class="mini-opt" data-scale-target="strategy" data-scale="log">LOG</button>
+                    </div>
+                    <button type="button" class="mini-btn btn-save-png" data-canvas="chart-strat-equity" data-name="strategy-equity">PNG</button>
+                  </div>
                 </div>
+                <div class="panel-guide-note" data-i18n="panelGuides.stratEquity"></div>
                 <div class="chart-well tall"><canvas id="chart-strat-equity"></canvas></div>
               </div>
+            </div>
+
+            <div class="metal-panel">
+              <div class="panel-header">
+                <div class="panel-title" data-i18n="common.monthlyHeatmap">Monthly Returns Calendar Heatmap</div>
+              </div>
+              <div class="panel-guide-note" data-i18n="panelGuides.stratHeatmap"></div>
+              <div class="table-scroll" id="strat-monthly-heatmap"></div>
             </div>
 
             <div class="charts-grid-2">
               <div class="metal-panel">
                 <div class="panel-header">
-                  <div class="panel-title" data-i18n="common.drawdownCurve">水下回撤曲线 (Underwater Drawdown)</div>
+                  <div class="panel-title" data-i18n="common.drawdownCurve">Underwater Drawdown Curve</div>
+                  <div class="panel-actions">
+                    <button type="button" class="mini-btn btn-save-png" data-canvas="chart-strat-drawdown" data-name="strategy-drawdown">PNG</button>
+                  </div>
                 </div>
+                <div class="panel-guide-note" data-i18n="panelGuides.stratDrawdown"></div>
                 <div class="chart-well"><canvas id="chart-strat-drawdown"></canvas></div>
               </div>
 
               <div class="metal-panel">
                 <div class="panel-header">
-                  <div class="panel-title" data-i18n="strategyPage.tradeLog">逐笔调仓成交明细 (次日 adjOpen 执行)</div>
+                  <div class="panel-title" data-i18n="strategyPage.tradeLog">Chronological Execution Ledger (Next-Day adjOpen)</div>
                 </div>
+                <div class="panel-guide-note" data-i18n="panelGuides.stratTrades"></div>
                 <div class="table-scroll" style="max-height: 310px; overflow-y: auto;">
                   <table class="metal-table" id="table-strat-trades"></table>
                 </div>
@@ -466,21 +619,24 @@
           <div id="strat-sub-optimize" style="display: none;">
             <div class="metal-panel">
               <form id="form-strat-opt">
+                <div class="window-selector-grid">
+                  <div class="window-selector-box">
+                    <label class="field-label" data-i18n="strategyPage.shortGrid">Candidate Short Windows (Toggle or Add)</label>
+                    <div class="window-chip-bar" id="opt-short-chips"></div>
+                  </div>
+                  <div class="window-selector-box">
+                    <label class="field-label" data-i18n="strategyPage.longGrid">Candidate Long Windows (Toggle or Add)</label>
+                    <div class="window-chip-bar" id="opt-long-chips"></div>
+                  </div>
+                </div>
+
                 <div class="controls-grid">
                   <div class="field-group">
-                    <label class="field-label" data-i18n="common.ticker">股票代码</label>
-                    <input id="opt-ticker" class="metal-input" type="text" value="AAPL" required />
+                    <label class="field-label" data-i18n="common.ticker">US Ticker Symbol</label>
+                    <input id="opt-ticker" class="metal-input" type="text" autocomplete="off" placeholder="US ticker or name (e.g. AAPL)" value="AAPL" required />
                   </div>
                   <div class="field-group">
-                    <label class="field-label" data-i18n="strategyPage.shortGrid">短期候选窗口 (逗号分隔)</label>
-                    <input id="opt-shorts" class="metal-input" type="text" value="10, 20, 50" required />
-                  </div>
-                  <div class="field-group">
-                    <label class="field-label" data-i18n="strategyPage.longGrid">长期候选窗口 (逗号分隔)</label>
-                    <input id="opt-longs" class="metal-input" type="text" value="50, 100, 200" required />
-                  </div>
-                  <div class="field-group">
-                    <label class="field-label" data-i18n="strategyPage.trainRatio">训练集时间占比</label>
+                    <label class="field-label" data-i18n="strategyPage.trainRatio">Training Split Ratio</label>
                     <select id="opt-train-ratio" class="metal-select">
                       <option value="0.6">60% Train / 40% Test</option>
                       <option value="0.7" selected>70% Train / 30% Test</option>
@@ -488,39 +644,45 @@
                     </select>
                   </div>
                   <div class="field-group">
-                    <label class="field-label" data-i18n="strategyPage.costBps">单次交易成本 (bps)</label>
+                    <label class="field-label" data-i18n="strategyPage.costBps">Transaction Cost (bps)</label>
                     <input id="opt-cost" class="metal-input" type="number" min="0" max="500" value="10" required />
                   </div>
                   <div class="field-group">
-                    <label class="field-label" data-i18n="common.startDate">起始日期</label>
+                    <label class="field-label" data-i18n="common.startDate">Start Date</label>
                     <input id="opt-start" class="metal-input" type="date" value="2021-01-01" required />
                   </div>
                   <div class="field-group">
-                    <label class="field-label" data-i18n="common.endDate">结束日期</label>
+                    <label class="field-label" data-i18n="common.endDate">End Date</label>
                     <input id="opt-end" class="metal-input" type="date" value="2025-12-31" required />
                   </div>
                   <div class="field-group">
-                    <button type="submit" class="brass-btn" id="btn-run-opt" data-i18n="common.runAnalysis">执行分析</button>
+                    <button type="submit" class="brass-btn" id="btn-run-opt" data-i18n="common.runAnalysis">EXECUTE RUN</button>
                   </div>
                 </div>
               </form>
             </div>
 
+            <div id="guided-strat-opt" class="guided-banner"></div>
             <div id="opt-oos-kpis" class="kpi-grid"></div>
 
             <div class="charts-grid-2">
               <div class="metal-panel">
                 <div class="panel-header">
-                  <div class="panel-title" data-i18n="strategyPage.oosEquityChart">样本外未见测试集净值表现 (Unseen Test Period)</div>
-                  <span class="field-label" id="opt-oos-span"></span>
+                  <div class="panel-title" data-i18n="strategyPage.oosEquityChart">Out-of-Sample Unseen Testing Equity Curve</div>
+                  <div class="panel-actions">
+                    <span class="field-label" id="opt-oos-span"></span>
+                    <button type="button" class="mini-btn btn-save-png" data-canvas="chart-opt-oos" data-name="strategy-oos">PNG</button>
+                  </div>
                 </div>
+                <div class="panel-guide-note" data-i18n="panelGuides.oosEquity"></div>
                 <div class="chart-well"><canvas id="chart-opt-oos"></canvas></div>
               </div>
 
               <div class="metal-panel">
                 <div class="panel-header">
-                  <div class="panel-title" data-i18n="strategyPage.oosBannerTitle">样本外验证对照统计</div>
+                  <div class="panel-title" data-i18n="strategyPage.oosBannerTitle">Chronological Out-of-Sample Validation Verdict</div>
                 </div>
+                <div class="panel-guide-note" data-i18n="panelGuides.oosTable"></div>
                 <div class="table-scroll">
                   <table class="metal-table" id="table-opt-oos"></table>
                 </div>
@@ -529,9 +691,10 @@
 
             <div class="metal-panel">
               <div class="panel-header">
-                <div class="panel-title" data-i18n="strategyPage.gridTable">全样本统一区间多参数对比排行榜 (按夏普排序)</div>
+                <div class="panel-title" data-i18n="strategyPage.gridTable">Shared-Period Parameter Grid Leaderboard (Ranked by Sharpe)</div>
                 <span class="field-label" id="opt-grid-span"></span>
               </div>
+              <div class="panel-guide-note" data-i18n="panelGuides.oosGrid"></div>
               <div class="table-scroll">
                 <table class="metal-table" id="table-opt-grid"></table>
               </div>
@@ -543,59 +706,72 @@
         <section id="page-methodology" class="page-view">
           <div class="page-header">
             <div>
-              <h1 class="page-title" data-i18n="methodPage.title">量化金融方法论与持久化缓存架构</h1>
-              <p class="page-subtitle" data-i18n="methodPage.subtitle">完整呈现 MarketLens 底层研究引擎的数学定义、防未来函数回测准则与本地数据库缓存状态。</p>
-            </div>
-          </div>
-
-          <div class="metal-panel">
-            <div class="panel-header">
-              <div class="panel-title" data-i18n="methodPage.cacheTableTitle">当前已缓存历史行情标的明细</div>
-              <div class="chip-group">
-                <button type="button" class="steel-chip" id="btn-refresh-cache" data-i18n="methodPage.refreshStats">刷新状态</button>
-                <button type="button" class="steel-chip" id="btn-clear-cache" data-i18n="methodPage.clearCache">清空并重预热本地缓存</button>
-              </div>
-            </div>
-            <div class="table-scroll">
-              <table class="metal-table" id="table-cache-inventory"></table>
+              <h1 class="page-title" data-i18n="methodPage.title">Methodology</h1>
+              <p class="page-subtitle" data-i18n="methodPage.subtitle">Mathematical formulas, backtest assumptions, and local cache inventory.</p>
             </div>
           </div>
 
           <div class="spec-grid">
             <div class="metal-panel">
-              <div class="panel-title">01 · CORPORATE-ACTION ADJUSTED PRICING</div>
-              <p class="spec-desc">
-                所有收益率与回测信号均严格采用复权价格 (<code>adjClose</code> 与 <code>adjOpen</code>)，自动纳入历史拆股 (Stock Splits) 与现金分红复投因子，避免除权日产生虚假暴跌信号（已通过 AAPL 2020 年 1 拆 4 拆股样本检验）。
-              </p>
-              <div class="formula-box">Simple Return r_t = (adjClose_t / adjClose_{t-1}) - 1</div>
-              <div class="formula-box">Wealth Index W_t = adjClose_t / adjClose_0  (W_0 = 1.0)</div>
+              <div class="panel-title" data-i18n="methodPage.spec1Title">01 · CORPORATE-ACTION ADJUSTED PRICING</div>
+              <p class="spec-desc" data-i18n="methodPage.spec1Desc"></p>
+              <div class="formula-box latex-formula" data-latex="r_t = \frac{P_t^{\mathrm{adj}}}{P_{t-1}^{\mathrm{adj}}} - 1, \qquad r_t^{\log} = \ln\!\left(\frac{P_t^{\mathrm{adj}}}{P_{t-1}^{\mathrm{adj}}}\right)">
+                <math display="block"><msub><mi>r</mi><mi>t</mi></msub><mo>=</mo><mfrac><msubsup><mi>P</mi><mi>t</mi><mi>adj</mi></msubsup><msubsup><mi>P</mi><mrow><mi>t</mi><mo>-</mo><mn>1</mn></mrow><mi>adj</mi></msubsup></mfrac><mo>-</mo><mn>1</mn><mo>,</mo><mspace width="1.5em"/><msubsup><mi>r</mi><mi>t</mi><mi>log</mi></msubsup><mo>=</mo><mi>ln</mi><mrow><mo>(</mo><mfrac><msubsup><mi>P</mi><mi>t</mi><mi>adj</mi></msubsup><msubsup><mi>P</mi><mrow><mi>t</mi><mo>-</mo><mn>1</mn></mrow><mi>adj</mi></msubsup></mfrac><mo>)</mo></mrow></math>
+              </div>
+              <div class="formula-box latex-formula" data-latex="W_t = \frac{P_t^{\mathrm{adj}}}{P_0^{\mathrm{adj}}}, \qquad W_0 = 1">
+                <math display="block"><msub><mi>W</mi><mi>t</mi></msub><mo>=</mo><mfrac><msubsup><mi>P</mi><mi>t</mi><mi>adj</mi></msubsup><msubsup><mi>P</mi><mn>0</mn><mi>adj</mi></msubsup></mfrac><mo>,</mo><mspace width="1.5em"/><msub><mi>W</mi><mn>0</mn></msub><mo>=</mo><mn>1</mn></math>
+              </div>
+              <div class="panel-guide-note" style="margin:10px 0 0;" data-i18n="panelGuides.methodSpec1"></div>
             </div>
 
             <div class="metal-panel">
-              <div class="panel-title">02 · ANNUALIZED RISK &amp; SHARPE METRICS</div>
-              <p class="spec-desc">
-                统一采用每年 <strong>252 个交易日</strong> 与默认 <strong>0% 无风险利率</strong> 假设，使用日简单收益率样本标准差计算年化波动率与夏普比率，并实时追踪峰值回撤 (Underwater Drawdown)。
-              </p>
-              <div class="formula-box">Annual Return = (1 + TotalReturn)^(252 / N) - 1</div>
-              <div class="formula-box">Sharpe = (mean(r) / stdev(r)) * sqrt(252)</div>
-              <div class="formula-box">Drawdown_t = (W_t / max_{0..t}(W)) - 1</div>
+              <div class="panel-title" data-i18n="methodPage.spec2Title">02 · ANNUALIZED RISK &amp; SHARPE METRICS</div>
+              <p class="spec-desc" data-i18n="methodPage.spec2Desc"></p>
+              <div class="formula-box latex-formula" data-latex="R_{\mathrm{ann}} = \left(1 + R_{\mathrm{total}}\right)^{\frac{252}{N}} - 1, \qquad \sigma_{\mathrm{ann}} = s_r \sqrt{252}">
+                <math display="block"><msub><mi>R</mi><mi>ann</mi></msub><mo>=</mo><msup><mrow><mo>(</mo><mn>1</mn><mo>+</mo><msub><mi>R</mi><mi>total</mi></msub><mo>)</mo></mrow><mfrac><mn>252</mn><mi>N</mi></mfrac></msup><mo>-</mo><mn>1</mn><mo>,</mo><mspace width="1.5em"/><msub><mi>σ</mi><mi>ann</mi></msub><mo>=</mo><msub><mi>s</mi><mi>r</mi></msub><msqrt><mn>252</mn></msqrt></math>
+              </div>
+              <div class="formula-box latex-formula" data-latex="\mathrm{Sharpe} = \frac{\bar{r} - r_{f,\mathrm{daily}}}{s_r}\sqrt{252}, \qquad DD_t = \frac{W_t}{\max_{0 \le \tau \le t} W_\tau} - 1">
+                <math display="block"><mi>Sharpe</mi><mo>=</mo><mfrac><mrow><mover><mi>r</mi><mo>¯</mo></mover><mo>-</mo><msub><mi>r</mi><mi>f</mi></msub></mrow><msub><mi>s</mi><mi>r</mi></msub></mfrac><msqrt><mn>252</mn></msqrt><mo>,</mo><mspace width="1.5em"/><mi>D</mi><msub><mi>D</mi><mi>t</mi></msub><mo>=</mo><mfrac><msub><mi>W</mi><mi>t</mi></msub><mrow><msub><mi>max</mi><mrow><mn>0</mn><mo>≤</mo><mi>τ</mi><mo>≤</mo><mi>t</mi></mrow></msub><msub><mi>W</mi><mi>τ</mi></msub></mrow></mfrac><mo>-</mo><mn>1</mn></math>
+              </div>
+              <div class="panel-guide-note" style="margin:10px 0 0;" data-i18n="panelGuides.methodSpec2"></div>
             </div>
 
             <div class="metal-panel">
-              <div class="panel-title">03 · BENCHMARK BETA &amp; PORTFOLIO FRONTIER</div>
-              <p class="spec-desc">
-                多资产与基准分析自动对共同交易日求交集对齐；组合支持任意权重配置与网格遍历，精确识别最高夏普比率 (Max Sharpe) 与最小方差波动 (Min Volatility) 配比。
-              </p>
-              <div class="formula-box">Beta = Cov(r_asset, r_bench) / Var(r_bench)</div>
-              <div class="formula-box">W_portfolio(t) = sum_i [ w_i * (adjClose_{i,t} / adjClose_{i,0}) ]</div>
+              <div class="panel-title" data-i18n="methodPage.spec3Title">03 · BENCHMARK BETA &amp; PORTFOLIO FRONTIER</div>
+              <p class="spec-desc" data-i18n="methodPage.spec3Desc"></p>
+              <div class="formula-box latex-formula" data-latex="\beta = \frac{\operatorname{Cov}(r_i,\, r_m)}{\operatorname{Var}(r_m)}, \qquad \rho_{i,m} = \frac{\operatorname{Cov}(r_i,\, r_m)}{s_i \, s_m}">
+                <math display="block"><mi>β</mi><mo>=</mo><mfrac><mrow><mi>Cov</mi><mo>(</mo><msub><mi>r</mi><mi>i</mi></msub><mo>,</mo><msub><mi>r</mi><mi>m</mi></msub><mo>)</mo></mrow><mrow><mi>Var</mi><mo>(</mo><msub><mi>r</mi><mi>m</mi></msub><mo>)</mo></mrow></mfrac><mo>,</mo><mspace width="1.5em"/><msub><mi>ρ</mi><mrow><mi>i</mi><mo>,</mo><mi>m</mi></mrow></msub><mo>=</mo><mfrac><mrow><mi>Cov</mi><mo>(</mo><msub><mi>r</mi><mi>i</mi></msub><mo>,</mo><msub><mi>r</mi><mi>m</mi></msub><mo>)</mo></mrow><mrow><msub><mi>s</mi><mi>i</mi></msub><msub><mi>s</mi><mi>m</mi></msub></mrow></mfrac></math>
+              </div>
+              <div class="formula-box latex-formula" data-latex="W_p(t) = \sum_{i=1}^{K} w_i \frac{P_{i,t}^{\mathrm{adj}}}{P_{i,0}^{\mathrm{adj}}}, \qquad \sum_{i=1}^{K} w_i = 1,\;\; w_i \ge 0">
+                <math display="block"><msub><mi>W</mi><mi>p</mi></msub><mo>(</mo><mi>t</mi><mo>)</mo><mo>=</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>K</mi></munderover><msub><mi>w</mi><mi>i</mi></msub><mfrac><msubsup><mi>P</mi><mrow><mi>i</mi><mo>,</mo><mi>t</mi></mrow><mi>adj</mi></msubsup><msubsup><mi>P</mi><mrow><mi>i</mi><mo>,</mo><mn>0</mn></mrow><mi>adj</mi></msubsup></mfrac><mo>,</mo><mspace width="1.5em"/><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>K</mi></munderover><msub><mi>w</mi><mi>i</mi></msub><mo>=</mo><mn>1</mn></math>
+              </div>
+              <div class="panel-guide-note" style="margin:10px 0 0;" data-i18n="panelGuides.methodSpec3"></div>
             </div>
 
             <div class="metal-panel">
-              <div class="panel-title">04 · ZERO LOOK-AHEAD BIAS &amp; OUT-OF-SAMPLE</div>
-              <p class="spec-desc">
-                均线交叉信号在 <code>t-1</code> 日收盘后由 <code>adjClose</code> 生成，调仓指令严格延后至 <code>t</code> 日开盘价 <code>adjOpen</code> 成交，扣除双边换手交易成本 (bps)；样本外验证按时间顺序切分训练集寻优并在未见测试集上独立评估。
-              </p>
-              <div class="formula-box">Net Return = (1 - c * |pos_t - pos_{t-1}|) * (1 + gross_t) - 1</div>
+              <div class="panel-title" data-i18n="methodPage.spec4Title">04 · ZERO LOOK-AHEAD BIAS &amp; OUT-OF-SAMPLE</div>
+              <p class="spec-desc" data-i18n="methodPage.spec4Desc"></p>
+              <div class="formula-box latex-formula" data-latex="S_{t-1} = \mathbb{I}\!\left(\frac{1}{L_s}\sum_{k=0}^{L_s-1} P_{t-1-k}^{\mathrm{adj}} > \frac{1}{L_l}\sum_{k=0}^{L_l-1} P_{t-1-k}^{\mathrm{adj}}\right)">
+                <math display="block"><msub><mi>S</mi><mrow><mi>t</mi><mo>-</mo><mn>1</mn></mrow></msub><mo>=</mo><mi>𝕀</mi><mrow><mo>(</mo><mfrac><mn>1</mn><msub><mi>L</mi><mi>s</mi></msub></mfrac><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>0</mn></mrow><mrow><msub><mi>L</mi><mi>s</mi></msub><mo>-</mo><mn>1</mn></mrow></munderover><msubsup><mi>P</mi><mrow><mi>t</mi><mo>-</mo><mn>1</mn><mo>-</mo><mi>k</mi></mrow><mi>adj</mi></msubsup><mo>&gt;</mo><mfrac><mn>1</mn><msub><mi>L</mi><mi>l</mi></msub></mfrac><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>0</mn></mrow><mrow><msub><mi>L</mi><mi>l</mi></msub><mo>-</mo><mn>1</mn></mrow></munderover><msubsup><mi>P</mi><mrow><mi>t</mi><mo>-</mo><mn>1</mn><mo>-</mo><mi>k</mi></mrow><mi>adj</mi></msubsup><mo>)</mo></mrow></math>
+              </div>
+              <div class="formula-box latex-formula" data-latex="r_t^{\mathrm{net}} = \left(1 - c\,\left|S_{t-1} - S_{t-2}\right|\right)\!\left(1 + S_{t-1}\!\left(\frac{O_{t+1}^{\mathrm{adj}}}{O_t^{\mathrm{adj}}} - 1\right)\right) - 1">
+                <math display="block"><msubsup><mi>r</mi><mi>t</mi><mi>net</mi></msubsup><mo>=</mo><mrow><mo>(</mo><mn>1</mn><mo>-</mo><mi>c</mi><mo>|</mo><msub><mi>S</mi><mrow><mi>t</mi><mo>-</mo><mn>1</mn></mrow></msub><mo>-</mo><msub><mi>S</mi><mrow><mi>t</mi><mo>-</mo><mn>2</mn></mrow></msub><mo>|</mo><mo>)</mo></mrow><mrow><mo>(</mo><mn>1</mn><mo>+</mo><msub><mi>S</mi><mrow><mi>t</mi><mo>-</mo><mn>1</mn></mrow></msub><mo>(</mo><mfrac><msubsup><mi>O</mi><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow><mi>adj</mi></msubsup><msubsup><mi>O</mi><mi>t</mi><mi>adj</mi></msubsup></mfrac><mo>-</mo><mn>1</mn><mo>)</mo><mo>)</mo></mrow><mo>-</mo><mn>1</mn></math>
+              </div>
+              <div class="panel-guide-note" style="margin:10px 0 0;" data-i18n="panelGuides.methodSpec4"></div>
+            </div>
+          </div>
+
+          <div class="metal-panel">
+            <div class="panel-header">
+              <div class="panel-title" data-i18n="methodPage.cacheTableTitle">Cached Historical Market Series Inventory</div>
+              <div class="chip-group">
+                <button type="button" class="steel-chip" id="btn-refresh-cache" data-i18n="methodPage.refreshStats">Refresh Telemetry</button>
+                <button type="button" class="steel-chip" id="btn-clear-cache" data-i18n="methodPage.clearCache">Flush &amp; Re-seed Cache</button>
+              </div>
+            </div>
+            <div class="panel-guide-note" data-i18n="panelGuides.cacheInventory"></div>
+            <div class="table-scroll">
+              <table class="metal-table" id="table-cache-inventory"></table>
             </div>
           </div>
         </section>

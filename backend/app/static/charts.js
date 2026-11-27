@@ -1,6 +1,7 @@
 /**
  * Precision High-DPI Metallic Financial Chart Engine
- * Self-contained HTML5 Canvas renderer with interactive laser crosshairs & HUD tooltips.
+ * Supports multi-series lines, logarithmic scale, OHLC candlesticks + volume,
+ * Risk-Return efficient frontier, laser crosshairs, HUD tooltips, and PNG export.
  */
 
 const PALETTE = [
@@ -52,8 +53,34 @@ function niceBounds(minVal, maxVal, padFraction = 0.08) {
   };
 }
 
+function fmtVolCompact(v) {
+  if (!Number.isFinite(v)) return "--";
+  if (v >= 1e9) return `${(v / 1e9).toFixed(2)}B`;
+  if (v >= 1e6) return `${(v / 1e6).toFixed(1)}M`;
+  if (v >= 1e3) return `${(v / 1e3).toFixed(0)}K`;
+  return String(Math.round(v));
+}
+
 /**
- * Renders an interactive multi-series financial time-series chart.
+ * Exports any live Canvas chart as a crisp dark-gunmetal PNG file.
+ */
+export function exportCanvasPng(canvas, filename = "alphametric-chart.png") {
+  if (!canvas || !canvas.width || !canvas.height) return;
+  const off = document.createElement("canvas");
+  off.width = canvas.width;
+  off.height = canvas.height;
+  const ctx = off.getContext("2d");
+  ctx.fillStyle = "#090c11";
+  ctx.fillRect(0, 0, off.width, off.height);
+  ctx.drawImage(canvas, 0, 0);
+  const link = document.createElement("a");
+  link.download = filename;
+  link.href = off.toDataURL("image/png");
+  link.click();
+}
+
+/**
+ * Renders an interactive multi-series financial time-series chart (LIN or LOG).
  */
 export function renderTimeSeriesChart(canvas, config) {
   const wrapper = canvas.parentElement;
@@ -66,10 +93,17 @@ export function renderTimeSeriesChart(canvas, config) {
     yFormat = (v) => v.toFixed(2),
     baselineValue = null,
     fillZeroFloor = false,
+    logScale = false,
     markers = [],
   } = config;
 
   let hoverIdx = null;
+  const useLog = Boolean(logScale) && !fillZeroFloor;
+
+  const transformY = (v) => (useLog ? Math.log(v) : v);
+  const invertY = (t) => (useLog ? Math.exp(t) : t);
+  const isValidVal = (v) =>
+    v !== null && v !== undefined && Number.isFinite(v) && (!useLog || v > 0);
 
   const markerByIndex = new Map();
   if (markers.length && dates.length) {
@@ -95,7 +129,7 @@ export function renderTimeSeriesChart(canvas, config) {
       return;
     }
 
-    const pad = { top: 28, right: 18, bottom: 28, left: 64 };
+    const pad = { top: 28, right: 18, bottom: 28, left: 66 };
     const plotW = width - pad.left - pad.right;
     const plotH = height - pad.top - pad.bottom;
 
@@ -103,15 +137,17 @@ export function renderTimeSeriesChart(canvas, config) {
     let rawMax = -Infinity;
     for (const s of series) {
       for (const v of s.values) {
-        if (v !== null && v !== undefined && Number.isFinite(v)) {
-          if (v < rawMin) rawMin = v;
-          if (v > rawMax) rawMax = v;
+        if (isValidVal(v)) {
+          const tv = transformY(v);
+          if (tv < rawMin) rawMin = tv;
+          if (tv > rawMax) rawMax = tv;
         }
       }
     }
-    if (baselineValue !== null) {
-      rawMin = Math.min(rawMin, baselineValue);
-      rawMax = Math.max(rawMax, baselineValue);
+    if (baselineValue !== null && isValidVal(baselineValue)) {
+      const tb = transformY(baselineValue);
+      rawMin = Math.min(rawMin, tb);
+      rawMax = Math.max(rawMax, tb);
     }
     if (fillZeroFloor) {
       rawMax = Math.max(rawMax, 0);
@@ -127,7 +163,7 @@ export function renderTimeSeriesChart(canvas, config) {
         ? pad.left + plotW / 2
         : pad.left + (i / (dates.length - 1)) * plotW;
     const yAt = (v) =>
-      pad.top + (1 - (v - bounds.min) / (bounds.max - bounds.min)) * plotH;
+      pad.top + (1 - (transformY(v) - bounds.min) / (bounds.max - bounds.min)) * plotH;
 
     // Horizontal etched grid lines + Y labels
     const yTicks = 5;
@@ -136,8 +172,9 @@ export function renderTimeSeriesChart(canvas, config) {
     ctx.textBaseline = "middle";
 
     for (let t = 0; t <= yTicks; t++) {
-      const val = bounds.min + ((bounds.max - bounds.min) * t) / yTicks;
-      const y = yAt(val);
+      const tVal = bounds.min + ((bounds.max - bounds.min) * t) / yTicks;
+      const realVal = invertY(tVal);
+      const y = pad.top + (1 - t / yTicks) * plotH;
       ctx.strokeStyle = "rgba(148, 163, 184, 0.10)";
       ctx.lineWidth = 1;
       ctx.beginPath();
@@ -146,25 +183,30 @@ export function renderTimeSeriesChart(canvas, config) {
       ctx.stroke();
 
       ctx.fillStyle = "#8a99ad";
-      ctx.fillText(yFormat(val), pad.left - 8, y);
+      ctx.fillText(yFormat(realVal), pad.left - 8, y);
     }
 
-    // Baseline dashed reference (e.g. 1.00x or 0.00%)
-    if (baselineValue !== null && baselineValue >= bounds.min && baselineValue <= bounds.max) {
-      const by = yAt(baselineValue);
-      ctx.save();
-      ctx.strokeStyle = "rgba(230, 185, 99, 0.35)";
-      ctx.setLineDash([4, 4]);
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(pad.left, by);
-      ctx.lineTo(width - pad.right, by);
-      ctx.stroke();
-      ctx.restore();
+    // Baseline dashed reference
+    if (baselineValue !== null && isValidVal(baselineValue)) {
+      const tb = transformY(baselineValue);
+      if (tb >= bounds.min && tb <= bounds.max) {
+        const by = yAt(baselineValue);
+        ctx.save();
+        ctx.strokeStyle = "rgba(230, 185, 99, 0.35)";
+        ctx.setLineDash([4, 4]);
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(pad.left, by);
+        ctx.lineTo(width - pad.right, by);
+        ctx.stroke();
+        ctx.restore();
+      }
     }
 
-    // X-axis date ticks
-    const xTickCount = Math.min(6, dates.length);
+    // X-axis date ticks (adaptive density so mobile screens never overlap labels)
+    const compactDate = plotW < 380;
+    const minTickPx = compactDate ? 78 : 96;
+    const xTickCount = Math.max(2, Math.min(6, Math.floor(plotW / minTickPx), dates.length));
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
     ctx.fillStyle = "#7c8b9e";
@@ -173,11 +215,11 @@ export function renderTimeSeriesChart(canvas, config) {
         xTickCount === 1
           ? 0
           : Math.round((k * (dates.length - 1)) / (xTickCount - 1));
-      const x = xAt(idx);
-      ctx.fillText(dates[idx], x, pad.top + plotH + 8);
+      const label = compactDate ? dates[idx].slice(0, 7) : dates[idx];
+      ctx.fillText(label, xAt(idx), pad.top + plotH + 8);
     }
 
-    // Legend bar at top-left
+    // Legend bar
     let legendX = pad.left;
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";
@@ -188,16 +230,23 @@ export function renderTimeSeriesChart(canvas, config) {
       ctx.fillRect(legendX, 10, 10, 3);
       ctx.fillStyle = "#cbd5e1";
       ctx.fillText(s.label, legendX + 14, 11.5);
-      legendX += ctx.measureText(s.label).width + 30;
+      legendX += ctx.measureText(s.label).width + 28;
     });
 
-    // Draw series lines + optional area fills
+    if (useLog) {
+      ctx.fillStyle = "#e6b963";
+      ctx.font = "700 10px ui-monospace, SFMono-Regular, Menlo, monospace";
+      ctx.textAlign = "right";
+      ctx.fillText("LOG SCALE", width - pad.right, 11.5);
+    }
+
+    // Draw series
     series.forEach((s, idx) => {
       const color = s.color || PALETTE[idx % PALETTE.length];
       const pts = [];
       for (let i = 0; i < dates.length; i++) {
         const v = s.values[i];
-        if (v !== null && v !== undefined && Number.isFinite(v)) {
+        if (isValidVal(v)) {
           pts.push({ x: xAt(i), y: yAt(v), v, i });
         }
       }
@@ -238,11 +287,11 @@ export function renderTimeSeriesChart(canvas, config) {
       ctx.restore();
     });
 
-    // Draw trade markers (BUY / EXIT triangles) if provided
+    // Trade markers
     if (markerByIndex.size > 0 && series[0]) {
       for (const [idx, mList] of markerByIndex.entries()) {
         const baseVal = series[0].values[idx];
-        if (baseVal === null || baseVal === undefined) continue;
+        if (!isValidVal(baseVal)) continue;
         const x = xAt(idx);
         const y = yAt(baseVal);
         for (const m of mList) {
@@ -269,7 +318,7 @@ export function renderTimeSeriesChart(canvas, config) {
       }
     }
 
-    // Interactive laser crosshair
+    // Crosshair
     if (hoverIdx !== null && hoverIdx >= 0 && hoverIdx < dates.length) {
       const cx = xAt(hoverIdx);
       ctx.save();
@@ -284,7 +333,7 @@ export function renderTimeSeriesChart(canvas, config) {
 
       series.forEach((s, idx) => {
         const v = s.values[hoverIdx];
-        if (v === null || v === undefined || !Number.isFinite(v)) return;
+        if (!isValidVal(v)) return;
         const cy = yAt(v);
         const color = s.color || PALETTE[idx % PALETTE.length];
         ctx.beginPath();
@@ -301,7 +350,7 @@ export function renderTimeSeriesChart(canvas, config) {
   function onMove(ev) {
     if (!dates.length) return;
     const rect = canvas.getBoundingClientRect();
-    const padLeft = 64;
+    const padLeft = 66;
     const padRight = 18;
     const plotW = rect.width - padLeft - padRight;
     const relX = Math.max(0, Math.min(plotW, ev.clientX - rect.left - padLeft));
@@ -358,6 +407,227 @@ export function renderTimeSeriesChart(canvas, config) {
   const ro = new ResizeObserver(() => draw());
   ro.observe(wrapper);
 
+  canvas._cleanup = () => {
+    canvas.removeEventListener("mousemove", onMove);
+    canvas.removeEventListener("mouseleave", onLeave);
+    ro.disconnect();
+  };
+
+  draw();
+}
+
+/**
+ * Aggregates daily OHLCV bars into weekly candles when > 260 bars so candlesticks stay crisp.
+ */
+function aggregateBarsIfNeeded(rawBars) {
+  if (rawBars.length <= 260) {
+    return { bars: rawBars, timeframe: "DAILY" };
+  }
+  const buckets = new Map();
+  for (const b of rawBars) {
+    const dt = new Date(`${b.date}T00:00:00Z`);
+    const day = dt.getUTCDay();
+    const diffToMon = (day + 6) % 7;
+    const mon = new Date(dt.getTime() - diffToMon * 86400000);
+    const key = mon.toISOString().slice(0, 10);
+    if (!buckets.has(key)) {
+      buckets.set(key, {
+        date: b.date,
+        adjOpen: b.adjOpen,
+        adjHigh: b.adjHigh,
+        adjLow: b.adjLow,
+        adjClose: b.adjClose,
+        volume: b.volume || 0,
+      });
+    } else {
+      const cur = buckets.get(key);
+      cur.date = b.date;
+      cur.adjHigh = Math.max(cur.adjHigh, b.adjHigh);
+      cur.adjLow = Math.min(cur.adjLow, b.adjLow);
+      cur.adjClose = b.adjClose;
+      cur.volume += b.volume || 0;
+    }
+  }
+  return { bars: Array.from(buckets.values()), timeframe: "WEEKLY" };
+}
+
+/**
+ * Renders Adjusted OHLC Candlestick chart with Volume subplot and LIN/LOG support.
+ */
+export function renderCandlestickChart(canvas, config) {
+  const wrapper = canvas.parentElement;
+  wrapper.style.position = "relative";
+  const tip = ensureTooltip(wrapper);
+
+  const { ticker = "", bars: rawBars = [], logScale = false } = config;
+  const { bars, timeframe } = aggregateBarsIfNeeded(rawBars);
+  let hoverIdx = null;
+
+  const transformY = (v) => (logScale ? Math.log(v) : v);
+  const invertY = (t) => (logScale ? Math.exp(t) : t);
+
+  function draw() {
+    const { ctx, width, height } = setupCanvas(canvas);
+    ctx.clearRect(0, 0, width, height);
+    if (!bars.length) return;
+
+    const pad = { top: 28, right: 18, bottom: 26, left: 66 };
+    const plotW = width - pad.left - pad.right;
+    const totalH = height - pad.top - pad.bottom;
+    const priceH = totalH * 0.74;
+    const volTop = pad.top + priceH + 10;
+    const volH = totalH - priceH - 10;
+
+    let minP = Infinity;
+    let maxP = -Infinity;
+    let maxVol = 1;
+    for (const b of bars) {
+      if (b.adjLow > 0 && b.adjHigh > 0) {
+        minP = Math.min(minP, transformY(b.adjLow));
+        maxP = Math.max(maxP, transformY(b.adjHigh));
+      }
+      if ((b.volume || 0) > maxVol) maxVol = b.volume;
+    }
+
+    const bounds = niceBounds(minP, maxP, 0.06);
+    const stepX = plotW / Math.max(bars.length, 1);
+    const candleW = Math.max(1.8, Math.min(10, stepX * 0.66));
+    const xAt = (i) => pad.left + (i + 0.5) * stepX;
+    const yAt = (v) =>
+      pad.top + (1 - (transformY(v) - bounds.min) / (bounds.max - bounds.min)) * priceH;
+
+    // Grid + Price Y-axis
+    ctx.font = "11px ui-monospace, SFMono-Regular, Menlo, monospace";
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+    for (let t = 0; t <= 4; t++) {
+      const tv = bounds.min + ((bounds.max - bounds.min) * t) / 4;
+      const y = pad.top + (1 - t / 4) * priceH;
+      ctx.strokeStyle = "rgba(148, 163, 184, 0.10)";
+      ctx.beginPath();
+      ctx.moveTo(pad.left, y);
+      ctx.lineTo(width - pad.right, y);
+      ctx.stroke();
+      ctx.fillStyle = "#8a99ad";
+      ctx.fillText(`$${invertY(tv).toFixed(1)}`, pad.left - 8, y);
+    }
+
+    // Separator between Price & Volume
+    ctx.strokeStyle = "rgba(148, 163, 184, 0.16)";
+    ctx.beginPath();
+    ctx.moveTo(pad.left, volTop - 4);
+    ctx.lineTo(width - pad.right, volTop - 4);
+    ctx.stroke();
+    ctx.fillStyle = "#64748b";
+    ctx.fillText("VOL", pad.left - 8, volTop + volH * 0.5);
+
+    // Header tags
+    ctx.textAlign = "left";
+    ctx.font = "700 11px ui-monospace, SFMono-Regular, Menlo, monospace";
+    ctx.fillStyle = "#e6b963";
+    ctx.fillText(`${ticker} · ${timeframe} ADJ. OHLCV`, pad.left, 11.5);
+    if (logScale) {
+      ctx.textAlign = "right";
+      ctx.fillText("LOG SCALE", width - pad.right, 11.5);
+    }
+
+    // X-axis labels (adaptive density for mobile)
+    const compactDate = plotW < 380;
+    const xTicks = Math.max(2, Math.min(6, Math.floor(plotW / (compactDate ? 78 : 96)), bars.length));
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    ctx.fillStyle = "#7c8b9e";
+    for (let k = 0; k < xTicks; k++) {
+      const idx = xTicks === 1 ? 0 : Math.round((k * (bars.length - 1)) / (xTicks - 1));
+      const label = compactDate ? bars[idx].date.slice(0, 7) : bars[idx].date;
+      ctx.fillText(label, xAt(idx), pad.top + totalH + 6);
+    }
+
+    // Draw candles & volume bars
+    for (let i = 0; i < bars.length; i++) {
+      const b = bars[i];
+      const cx = xAt(i);
+      const isUp = b.adjClose >= b.adjOpen;
+      const color = isUp ? "#2dd4bf" : "#f43f5e";
+
+      // Wick
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(cx, yAt(b.adjHigh));
+      ctx.lineTo(cx, yAt(b.adjLow));
+      ctx.stroke();
+
+      // Body
+      const yO = yAt(b.adjOpen);
+      const yC = yAt(b.adjClose);
+      const bodyTop = Math.min(yO, yC);
+      const bodyH = Math.max(1.2, Math.abs(yC - yO));
+      ctx.fillStyle = color;
+      ctx.fillRect(cx - candleW / 2, bodyTop, candleW, bodyH);
+
+      // Volume bar
+      const vh = ((b.volume || 0) / maxVol) * volH;
+      ctx.fillStyle = isUp ? "rgba(45, 212, 191, 0.35)" : "rgba(244, 63, 94, 0.35)";
+      ctx.fillRect(cx - candleW / 2, volTop + volH - vh, candleW, vh);
+    }
+
+    // Crosshair
+    if (hoverIdx !== null && hoverIdx >= 0 && hoverIdx < bars.length) {
+      const cx = xAt(hoverIdx);
+      ctx.save();
+      ctx.strokeStyle = "rgba(226, 232, 240, 0.35)";
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.moveTo(cx, pad.top);
+      ctx.lineTo(cx, pad.top + totalH);
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  function onMove(ev) {
+    if (!bars.length) return;
+    const rect = canvas.getBoundingClientRect();
+    const padLeft = 66;
+    const padRight = 18;
+    const plotW = rect.width - padLeft - padRight;
+    const relX = Math.max(0, Math.min(plotW - 1, ev.clientX - rect.left - padLeft));
+    const idx = Math.min(bars.length - 1, Math.floor((relX / Math.max(plotW, 1)) * bars.length));
+    hoverIdx = idx;
+    draw();
+
+    const b = bars[idx];
+    const chg = b.adjOpen > 0 ? (b.adjClose / b.adjOpen - 1) * 100 : 0;
+    tip.innerHTML = `
+      <div class="hud-date">${b.date} (${timeframe})</div>
+      <div class="hud-row"><span class="hud-lbl">Adj Open</span><span class="hud-val">$${b.adjOpen.toFixed(2)}</span></div>
+      <div class="hud-row"><span class="hud-lbl">Adj High</span><span class="hud-val">$${b.adjHigh.toFixed(2)}</span></div>
+      <div class="hud-row"><span class="hud-lbl">Adj Low</span><span class="hud-val">$${b.adjLow.toFixed(2)}</span></div>
+      <div class="hud-row"><span class="hud-lbl">Adj Close</span><span class="hud-val">$${b.adjClose.toFixed(2)} (${chg >= 0 ? "+" : ""}${chg.toFixed(2)}%)</span></div>
+      <div class="hud-row"><span class="hud-lbl">Volume</span><span class="hud-val">${fmtVolCompact(b.volume)}</span></div>
+    `;
+    tip.style.opacity = "1";
+    const tipW = tip.offsetWidth || 195;
+    const leftPos =
+      ev.clientX - rect.left + 16 + tipW > rect.width
+        ? Math.max(8, ev.clientX - rect.left - tipW - 14)
+        : ev.clientX - rect.left + 14;
+    tip.style.left = `${leftPos}px`;
+    tip.style.top = `${Math.max(24, ev.clientY - rect.top - 18)}px`;
+  }
+
+  function onLeave() {
+    hoverIdx = null;
+    tip.style.opacity = "0";
+    draw();
+  }
+
+  if (canvas._cleanup) canvas._cleanup();
+  canvas.addEventListener("mousemove", onMove);
+  canvas.addEventListener("mouseleave", onLeave);
+  const ro = new ResizeObserver(() => draw());
+  ro.observe(wrapper);
   canvas._cleanup = () => {
     canvas.removeEventListener("mousemove", onMove);
     canvas.removeEventListener("mouseleave", onLeave);
@@ -458,7 +728,7 @@ export function renderFrontierChart(canvas, config) {
     ctx.clearRect(0, 0, width, height);
     if (!points.length) return;
 
-    const { pad, plotW, plotH, bx, by, xAt, yAt } = getLayout(width, height);
+    const { pad, plotH, bx, by, xAt, yAt } = getLayout(width, height);
 
     ctx.font = "11px ui-monospace, SFMono-Regular, Menlo, monospace";
     for (let i = 0; i <= 4; i++) {
@@ -504,7 +774,6 @@ export function renderFrontierChart(canvas, config) {
       ctx.restore();
     }
 
-    // Scatter points shaded from Cyan to Brass by Sharpe ratio rank
     const sharpes = points.map((p) => p.sharpeRatio);
     const minS = Math.min(...sharpes);
     const maxS = Math.max(...sharpes);
@@ -569,7 +838,6 @@ export function renderFrontierChart(canvas, config) {
       ctx.stroke();
     }
 
-    // Legend
     ctx.font = "600 11px -apple-system, BlinkMacSystemFont, sans-serif";
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";

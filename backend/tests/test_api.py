@@ -7,7 +7,11 @@ from fastapi.testclient import TestClient
 
 from backend.app.db import init_db
 from backend.app.main import app
-from backend.app.services.cache_store import clear_cache, store_price_rows
+from backend.app.services.cache_store import (
+    clear_cache,
+    store_asset_profile,
+    store_price_rows,
+)
 
 
 def _make_synthetic_bars(
@@ -58,6 +62,16 @@ def setup_module():
     store_price_rows("TESTA", aapl, "2023-01-01", "2023-09-01")
     store_price_rows("TESTB", msft, "2023-01-01", "2023-09-01")
     store_price_rows("TESTSPY", spy, "2023-01-01", "2023-09-01")
+    store_asset_profile(
+        {
+            "ticker": "TESTA",
+            "name": "Test Alpha Corp",
+            "exchangeCode": "NASDAQ",
+            "startDate": "2010-01-04",
+            "endDate": "2025-12-31",
+            "description": "Synthetic equity used to verify profile card caching.",
+        }
+    )
 
 
 client = TestClient(app)
@@ -76,7 +90,7 @@ def test_health_and_spa_index():
 
     spa = client.get("/")
     assert spa.status_code == 200
-    assert "MarketLens" in spa.text
+    assert "AlphaMetric" in spa.text
 
 
 def test_single_asset_analysis_uses_cache():
@@ -97,6 +111,53 @@ def test_single_asset_analysis_uses_cache():
     assert "sharpeRatio" in payload["summary"]
     assert payload["benchmarkComparison"]["benchmarkTicker"] == "TESTSPY"
     assert len(payload["series"]) > 100
+    assert "adjOpen" in payload["series"][0]
+    assert "adjHigh" in payload["series"][0]
+    assert "adjLow" in payload["series"][0]
+    assert len(payload["monthlyReturns"]) >= 1
+    assert "ytd" in payload["monthlyReturns"][0]
+    assert payload["profile"]["name"] == "Test Alpha Corp"
+    assert payload["profile"]["exchangeCode"] == "NASDAQ"
+
+
+def test_us_ticker_validation_and_typo_suggestion():
+    non_us = client.post(
+        "/api/assets/analyze",
+        json={
+            "ticker": "0700.HK",
+            "benchmark": "SPY",
+            "startDate": "2023-01-01",
+            "endDate": "2023-08-15",
+        },
+    )
+    assert non_us.status_code == 400
+    assert "US-listed ticker" in non_us.json()["detail"]
+
+    typo = client.post(
+        "/api/assets/analyze",
+        json={
+            "ticker": "APPL",
+            "benchmark": "SPY",
+            "startDate": "2023-01-01",
+            "endDate": "2023-08-15",
+        },
+    )
+    assert typo.status_code == 400
+    assert "Did you mean AAPL?" in typo.json()["detail"]
+
+
+def test_smart_ticker_search_fuzzy_and_bilingual():
+    coca = client.get("/api/tickers/search", params={"q": "coco cola"})
+    assert coca.status_code == 200
+    assert coca.json()["results"][0]["ticker"] == "KO"
+
+    zh = client.get("/api/tickers/search", params={"q": "可口可乐"})
+    assert zh.status_code == 200
+    assert zh.json()["results"][0]["ticker"] == "KO"
+
+    appl = client.get("/api/tickers/search", params={"q": "appl"})
+    assert appl.status_code == 200
+    assert appl.json()["results"][0]["ticker"] == "AAPL"
 
 
 def test_multi_asset_comparison_and_correlation():

@@ -1,12 +1,15 @@
 import csv
 import re
+import threading
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from sqlalchemy import delete, func, select
 
 from backend.app.config import RESEARCH_DATA_DIR
 from backend.app.db import CACHE_BACKEND, SessionLocal
-from backend.app.models import FetchCoverage, PriceBar
+from backend.app.models import AssetProfile, FetchCoverage, PriceBar
+
+_CACHE_WRITE_LOCK = threading.Lock()
 
 RAW_CSV_PATTERN = re.compile(
     r"^([A-Z0-9.\-]+)_(\d{4}-\d{2}-\d{2})_(\d{4}-\d{2}-\d{2})\.csv$"
@@ -110,7 +113,7 @@ def store_price_rows(
     min_date = min(normalized_by_date)
     max_date = max(normalized_by_date)
 
-    with SessionLocal() as session:
+    with _CACHE_WRITE_LOCK, SessionLocal() as session:
         existing_bars = {
             b.trade_date: b
             for b in session.scalars(
@@ -230,9 +233,52 @@ def get_cache_stats() -> dict:
     }
 
 
-def clear_cache() -> dict:
+def get_cached_profile(ticker: str) -> dict | None:
+    clean = ticker.upper().strip()
     with SessionLocal() as session:
+        prof = session.get(AssetProfile, clean)
+        return prof.to_dict() if prof else None
+
+
+def store_asset_profile(profile: dict) -> dict:
+    clean = str(profile["ticker"]).upper().strip()
+    now = datetime.now(timezone.utc)
+    with _CACHE_WRITE_LOCK, SessionLocal() as session:
+        existing = session.get(AssetProfile, clean)
+        if existing:
+            existing.name = profile.get("name") or ""
+            existing.exchange_code = profile.get("exchangeCode") or "US"
+            existing.start_date = (profile.get("startDate") or "")[:10]
+            existing.end_date = (profile.get("endDate") or "")[:10]
+            existing.description = profile.get("description") or ""
+            existing.updated_at = now
+        else:
+            session.add(
+                AssetProfile(
+                    ticker=clean,
+                    name=profile.get("name") or "",
+                    exchange_code=profile.get("exchangeCode") or "US",
+                    start_date=(profile.get("startDate") or "")[:10],
+                    end_date=(profile.get("endDate") or "")[:10],
+                    description=profile.get("description") or "",
+                    updated_at=now,
+                )
+            )
+        session.commit()
+    return {
+        "ticker": clean,
+        "name": profile.get("name") or "",
+        "exchangeCode": profile.get("exchangeCode") or "US",
+        "startDate": (profile.get("startDate") or "")[:10],
+        "endDate": (profile.get("endDate") or "")[:10],
+        "description": profile.get("description") or "",
+    }
+
+
+def clear_cache() -> dict:
+    with _CACHE_WRITE_LOCK, SessionLocal() as session:
         session.execute(delete(FetchCoverage))
+        session.execute(delete(AssetProfile))
         deleted = session.execute(delete(PriceBar)).rowcount or 0
         session.commit()
     return {"clearedBars": int(deleted)}

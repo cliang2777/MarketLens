@@ -1,0 +1,27 @@
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="am-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#232b38"/>
+      <stop offset="100%" stop-color="#0d1117"/>
+    </linearGradient>
+    <linearGradient id="am-gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f8dc94"/>
+      <stop offset="100%" stop-color="#c49032"/>
+    </linearGradient>
+    <linearGradient id="am-silver" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#94a3b8"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="11" fill="url(#am-bg)" stroke="#94a3b8" stroke-opacity="0.34" stroke-width="1.5"/>
+  <path d="M12 3.5 L52 3.5" stroke="#ffffff" stroke-opacity="0.22" stroke-width="1" stroke-linecap="round"/>
+  <circle cx="9" cy="9" r="1.4" fill="#64748b" fill-opacity="0.55"/>
+  <circle cx="55" cy="9" r="1.4" fill="#64748b" fill-opacity="0.55"/>
+  <circle cx="9" cy="55" r="1.4" fill="#64748b" fill-opacity="0.55"/>
+  <circle cx="55" cy="55" r="1.4" fill="#64748b" fill-opacity="0.55"/>
+  <path d="M27.5 25.5 C23 20.5, 12.5 22.5, 12.5 32.5 C12.5 42, 22 43.5, 26.5 36.5 L29.5 23.5 M25.5 36 C27.2 40.5, 29.2 42, 31 41.5"
+        fill="none" stroke="url(#am-gold)" stroke-width="3.9" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M35 42.5 L35 22.5 L43.5 35 L52 22.5 L52 42.5"
+        fill="none" stroke="url(#am-silver)" stroke-width="3.9" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="52" cy="14.5" r="2.6" fill="#2dd4bf"/>
+</svg>

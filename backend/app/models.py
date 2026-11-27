@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from sqlalchemy import DateTime, Float, Index, Integer, String
+from sqlalchemy import DateTime, Float, Index, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from backend.app.db import Base
@@ -69,3 +69,29 @@ class FetchCoverage(Base):
     fetched_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_utcnow, nullable=False
     )
+
+
+class AssetProfile(Base):
+    """Cached US security metadata & company description from Tiingo."""
+
+    __tablename__ = "asset_profiles"
+
+    ticker: Mapped[str] = mapped_column(String(24), primary_key=True)
+    name: Mapped[str] = mapped_column(String(180), nullable=False, default="")
+    exchange_code: Mapped[str] = mapped_column(String(32), nullable=False, default="US")
+    start_date: Mapped[str] = mapped_column(String(10), nullable=False, default="")
+    end_date: Mapped[str] = mapped_column(String(10), nullable=False, default="")
+    description: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
+
+    def to_dict(self) -> dict:
+        return {
+            "ticker": self.ticker,
+            "name": self.name,
+            "exchangeCode": self.exchange_code,
+            "startDate": self.start_date,
+            "endDate": self.end_date,
+            "description": self.description,
+        }

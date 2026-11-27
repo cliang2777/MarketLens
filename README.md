@@ -1,20 +1,24 @@
-# MarketLens
+# AlphaMetric (`αM`)
 
-MarketLens is a full-stack quantitative market analysis, portfolio optimization, and strategy backtesting platform built on corporate-action-adjusted historical market data.
+**AlphaMetric** is a full-stack quantitative financial analysis, portfolio optimization, and strategy backtesting terminal built on corporate-action-adjusted US market data.
 
 ## Key Capabilities
 
-1. **Single-Asset Terminal (`Asset Terminal`)**
-   - Total & annualized return (252 trading days/year), annualized volatility, Sharpe ratio, underwater drawdown, and benchmark Beta & return correlation.
-2. **Cross-Asset Matrix (`Asset Comparison`)**
-   - Automatic common-trading-calendar alignment across multiple securities, normalized wealth curves, drawdown overlays, and pairwise return correlation heatmaps.
-3. **Portfolio & Efficient Frontier Lab (`Portfolio Frontier`)**
-   - Multi-asset custom weight backtesting and grid-swept Risk-Return Efficient Frontier identifying **Highest Sharpe**, **Minimum Volatility**, and **Smallest Drawdown** allocations.
-4. **Moving-Average Strategy & Out-of-Sample Validation (`Strategy & OOS Lab`)**
-   - **Zero look-ahead bias**: signals computed on daily `adjClose`, executed on the next session's `adjOpen` net of turnover transaction costs (`bps`).
-   - Parameter grid comparison across shared periods and chronological Train/Test Out-of-Sample (OOS) validation.
-5. **Dual-Mode Persistent Market Cache**
-   - Powered by SQLAlchemy 2.0: connects automatically to **PostgreSQL** when configured and reachable, or seamlessly persists daily OHLCV bars to a local **SQLite** database (`backend/data/marketlens_cache.sqlite3`) for millisecond-latency repeat queries and Tiingo rate-limit protection.
+1. **Asset Terminal**
+   - Total & annualized return (252 trading days/year), annualized volatility, Sharpe ratio (`Rf = 0%`), underwater drawdown, benchmark Beta & return correlation.
+   - Interactive normalized wealth curves (`LIN | LOG` scale), split/dividend-adjusted OHLCV candlestick & volume charts, monthly returns calendar heatmap, and live company profile metadata.
+   - Smart US equity & ETF autocomplete with fuzzy English/Chinese matching and typo suggestions.
+2. **Asset Comparison**
+   - Automatic common-trading-calendar alignment across multiple US securities, normalized wealth curves, drawdown overlays, quantitative comparison ledger, and pairwise daily return correlation heatmap.
+3. **Portfolio Lab**
+   - Interactive 2–5 asset allocation builder with proportional auto-balancing (`SUM = 100%`) and Risk-Return Efficient Frontier grid sweep identifying **Highest Sharpe**, **Minimum Volatility**, and **Smallest Drawdown** allocations.
+4. **Strategy Lab**
+   - **Zero look-ahead bias**: moving-average crossover signals generated on daily `adjClose`, executed on the next session's `adjOpen` net of turnover transaction costs (`bps`).
+   - Parameter grid comparison across shared periods and chronological Train/Test **Out-of-Sample (OOS)** validation.
+5. **Dual Workspace Modes & Exports**
+   - Instant **PRO** (institutional quantitative readout) and **GUIDE** (plain-language insights, `$10,000` capital simulations, and inline chart explainers) toggle, full **EN / 中文** localization, mobile/iOS Home Screen web app support, and one-click **PNG / CSV / Print PDF Tear Sheet** exports.
+6. **Dual-Mode Persistent Market Cache**
+   - Powered by SQLAlchemy 2.0: connects automatically to **PostgreSQL** when configured and reachable, or seamlessly persists daily OHLCV bars and asset profiles to a local **SQLite** database (`backend/data/marketlens_cache.sqlite3`) for millisecond-latency repeat queries and Tiingo rate-limit protection.
 
 ---
 
@@ -45,8 +49,9 @@ MarketLens/
     │   ├── services/
     │   │   ├── cache_store.py
     │   │   ├── market_data.py
+    │   │   ├── ticker_directory.py
     │   │   └── quant_engine.py
-    │   └── static/             # Brushed Gunmetal Quantitative Terminal UI
+    │   └── static/             # Brushed Gunmetal Quantitative Terminal UI & PWA icons
     └── tests/
         └── test_api.py
 ```
@@ -105,4 +110,3 @@ This repository includes a one-click Render Blueprint ([render.yaml](./render.ya
 2. Click **New +** -> **Blueprint** (or **Web Service**) and select `cliang2777/MarketLens`.
 3. Provide your `TIINGO_API_TOKEN` when prompted in Environment Variables.
 4. Click **Apply / Deploy** to obtain a public `https://*.onrender.com` URL.
-
