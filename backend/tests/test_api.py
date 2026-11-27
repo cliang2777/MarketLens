@@ -1,6 +1,6 @@
 import os
 
-os.environ.setdefault("MARKETLENS_SQLITE_PATH", ":memory:")
+os.environ.setdefault("ALPHAMETRIC_SQLITE_PATH", ":memory:")
 
 from datetime import date, timedelta
 from fastapi.testclient import TestClient

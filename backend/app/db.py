@@ -14,7 +14,7 @@ class Base(DeclarativeBase):
 
 
 def _build_engine():
-    explicit_sqlite = os.getenv("MARKETLENS_SQLITE_PATH")
+    explicit_sqlite = os.getenv("ALPHAMETRIC_SQLITE_PATH") or os.getenv("MARKETLENS_SQLITE_PATH")
     if explicit_sqlite:
         if explicit_sqlite == ":memory:":
             return create_engine(
@@ -46,7 +46,7 @@ def _build_engine():
             )
 
     BACKEND_DATA_DIR.mkdir(parents=True, exist_ok=True)
-    sqlite_path = BACKEND_DATA_DIR / "marketlens_cache.sqlite3"
+    sqlite_path = BACKEND_DATA_DIR / "alphametric_cache.sqlite3"
     sqlite_engine = create_engine(
         f"sqlite+pysqlite:///{sqlite_path}",
         connect_args={"check_same_thread": False},

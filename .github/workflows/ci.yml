@@ -29,5 +29,5 @@ jobs:
 
       - name: Run full test suite
         env:
-          MARKETLENS_SQLITE_PATH: ":memory:"
+          ALPHAMETRIC_SQLITE_PATH: ":memory:"
         run: python -m pytest -v

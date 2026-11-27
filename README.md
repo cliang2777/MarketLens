@@ -18,14 +18,14 @@
 5. **Dual Workspace Modes & Exports**
    - Instant **PRO** (institutional quantitative readout) and **GUIDE** (plain-language insights, `$10,000` capital simulations, and inline chart explainers) toggle, full **EN / 中文** localization, mobile/iOS Home Screen web app support, and one-click **PNG / CSV / Print PDF Tear Sheet** exports.
 6. **Dual-Mode Persistent Market Cache**
-   - Powered by SQLAlchemy 2.0: connects automatically to **PostgreSQL** when configured and reachable, or seamlessly persists daily OHLCV bars and asset profiles to a local **SQLite** database (`backend/data/marketlens_cache.sqlite3`) for millisecond-latency repeat queries and Tiingo rate-limit protection.
+   - Powered by SQLAlchemy 2.0: connects automatically to **PostgreSQL** when configured and reachable, or seamlessly persists daily OHLCV bars and asset profiles to a local **SQLite** database (`backend/data/alphametric_cache.sqlite3`) for millisecond-latency repeat queries and Tiingo rate-limit protection.
 
 ---
 
 ## Project Structure
 
 ```text
-MarketLens/
+AlphaMetric/
 ├── run.py                      # One-command server launcher
 ├── requirements.txt            # Python dependencies
 ├── research/                   # Core quantitative models & unit tests
@@ -107,6 +107,6 @@ python -m pytest -v
 This repository includes a one-click Render Blueprint ([render.yaml](./render.yaml)) and a production [Dockerfile](./Dockerfile):
 
 1. Sign in to [Render](https://render.com) with GitHub.
-2. Click **New +** -> **Blueprint** (or **Web Service**) and select `cliang2777/MarketLens`.
+2. Click **New +** -> **Blueprint** (or **Web Service**) and select `cliang2777/AlphaMetric`.
 3. Provide your `TIINGO_API_TOKEN` when prompted in Environment Variables.
 4. Click **Apply / Deploy** to obtain a public `https://*.onrender.com` URL.

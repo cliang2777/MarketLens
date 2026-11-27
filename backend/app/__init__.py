@@ -1,1 +1,1 @@
-"""MarketLens FastAPI application package."""
+"""AlphaMetric FastAPI application package."""

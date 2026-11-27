@@ -1,1 +1,1 @@
-"""Services layer for MarketLens."""
+"""Services layer for AlphaMetric."""

@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: marketlens
+    name: alphametric
     runtime: python
     plan: free
     buildCommand: pip install --upgrade pip && pip install -r requirements.txt

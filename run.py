@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""One-command launcher for MarketLens Quantitative Terminal."""
+"""One-command launcher for AlphaMetric Quantitative Terminal."""
 import os
 import uvicorn
 
